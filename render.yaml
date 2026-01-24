@@ -1,0 +1,51 @@
+services:
+  # ---------------------------------------
+  # BACKEND SERVICE (FastAPI)
+  # ---------------------------------------
+  - type: web
+    name: intellidesk-backend
+    env: python
+    region: singapore # Optional: Choose closest region
+    buildCommand: |
+      cd backend
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: |
+      cd backend
+      uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MONGO_URI
+        sync: false  # User must provide this in Dashboard
+      - key: GROQ_API_KEY
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: IMAP_SERVER
+        sync: false
+    autoDeploy: false
+
+  # ---------------------------------------
+  # FRONTEND SERVICE (React/Vite)
+  # ---------------------------------------
+  - type: static
+    name: intellidesk-frontend
+    env: static
+    buildCommand: |
+      cd frontend
+      npm install
+      npm run build
+    publishDir: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: intellidesk-backend
+          property: url
+    routes:
+      - type: rewrite
+        source: /**
+        destination: /index.html
