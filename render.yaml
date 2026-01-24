@@ -32,7 +32,7 @@ services:
 # FRONTEND SERVICE (Static Site)
 # ---------------------------------------
 staticSites:
-  - name: intellidesk-frontend
+  - name: intellidesk-frontend-v2
     buildCommand: |
       cd frontend
       npm install
