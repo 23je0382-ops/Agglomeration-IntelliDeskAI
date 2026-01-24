@@ -27,22 +27,3 @@ services:
       - key: IMAP_SERVER
         sync: false
     autoDeploy: false
-
-  # ---------------------------------------
-  # FRONTEND SERVICE (React/Vite)
-  # ---------------------------------------
-  - type: web
-    name: intellidesk-frontend
-    env: static
-    buildCommand: |
-      cd frontend
-      npm install
-      npm run build
-    staticPublishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        sync: false # Set this to your Backend URL after it deploys (e.g. https://backend.onrender.com)
-    routes:
-      - type: rewrite
-        source: /**
-        destination: /index.html
