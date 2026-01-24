@@ -40,7 +40,7 @@ staticSites:
     publishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        sync: false # Set to Backend URL (e.g. https://intellidesk-backend.onrender.com)
+        sync: false
     routes:
       - type: rewrite
         source: /**
