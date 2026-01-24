@@ -10,18 +10,20 @@ from email.mime.multipart import MIMEMultipart
 from imap_tools import MailBox, AND
 from database import get_db
 from services.ticket_service import create_ticket_logic
+from mongodb import get_sync_db 
 
 # Credentials (as provided)
 EMAIL = "aglo.intellidesk.ai@gmail.com"
 APP_PASSWORD = "vswn gtvy jeoi ypah"
 IMAP_SERVER = "imap.gmail.com"
 JSON_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "emails.json")
-CHECK_INTERVAL = 30  # Polling interval
+CHECK_INTERVAL = 5  # Polling interval
 
 class EmailIngestionService:
     def __init__(self):
         self.running = False
         self.thread = None
+        self.db = get_sync_db() # Sync connection for background thread
         
         # Ensure data directory exists
         os.makedirs(os.path.dirname(JSON_FILE), exist_ok=True)
@@ -48,28 +50,28 @@ class EmailIngestionService:
         
         while self.running:
             try:
-                # Load existing to check duplicates
+                # 1. MongoDB Collection
+                collection = self.db['Email-Store']
+
+                # 2. Load JSON Store
                 try:
                     with open(JSON_FILE, "r") as f:
                         saved_emails = json.load(f)
                 except (FileNotFoundError, json.JSONDecodeError):
                     saved_emails = []
-
-                saved_uids = {mail.get("uid") for mail in saved_emails if mail.get("uid")}
+                
+                saved_uids_json = {mail.get("uid") for mail in saved_emails if mail.get("uid")}
 
                 # Fetch Loop
                 new_emails = False
                 with MailBox(IMAP_SERVER).login(EMAIL, APP_PASSWORD) as mailbox:
-                    for msg in mailbox.fetch(AND(seen=False)):
-                        if msg.uid in saved_uids:
-                            continue
-
-                        body = msg.text or msg.html or ""
+                    # Fetch last 20 messages, seen or unseen, newest first
+                    for msg in mailbox.fetch(limit=20, reverse=True):
                         
-                        # Extract clean email
+                        body = msg.text or msg.html or ""
                         clean_from = self._extract_email_address(msg.from_)
                         
-                        # Storage Data
+                        # Data Object
                         email_data = {
                             "uid": msg.uid,
                             "from": msg.from_ or "",
@@ -79,39 +81,46 @@ class EmailIngestionService:
                             "body": body[:500] + "..." if len(body) > 500 else body # Truncate for preview
                         }
 
-                        saved_emails.append(email_data)
-                        saved_uids.add(msg.uid)
-                        new_emails = True
+                        # --- Store in MongoDB ---
+                        if not collection.find_one({"uid": msg.uid}):
+                            collection.insert_one(email_data.copy()) # Copy to ensure clean dict
+                            print(f"Stored in MongoDB: {msg.subject}")
 
-                        print("-" * 40)
-                        print("New Email Ingested:")
-                        print("From:", email_data["from"])
-                        print("Subject:", email_data["subject"])
-                        
-                        # --- Auto-Create Ticket ---
-                        try:
-                            print("Auto-Creating Ticket from Email...")
-                            with get_db() as conn:
-                                ticket = create_ticket_logic(
-                                    conn,
-                                    title=msg.subject,         # Use Subject as Title
-                                    description=body,          # Use Body as Description
-                                    customer_email=clean_from  # Use Clean Email
-                                )
-                                print(f"Ticket Created: ID {ticket['id']} - {ticket['title']}")
-                        except Exception as ticket_error:
-                            print(f"Failed to auto-create ticket: {ticket_error}")
-                        # ---------------------------
+                        # --- Store in JSON ---
+                        if msg.uid not in saved_uids_json:
+                            saved_emails.append(email_data)
+                            saved_uids_json.add(msg.uid)
+                            new_emails = True
+                            
+                            print("-" * 40)
+                            print("New Email Ingested (JSON):")
+                            print("From:", email_data["from"])
+                            print("Subject:", email_data["subject"])
+                            
+                            # --- Auto-Create Ticket (Trigger only on NEW JSON ingestion to avoid doubles) ---
+                            # Or rely on one source. Let's do it here.
+                            try:
+                                print("Auto-Creating Ticket from Email...")
+                                with get_db() as conn:
+                                    ticket = create_ticket_logic(
+                                        conn,
+                                        title=msg.subject,         
+                                        description=body,          
+                                        customer_email=clean_from  
+                                    )
+                                    print(f"Ticket Created: ID {ticket['id']} - {ticket['title']}")
+                            except Exception as ticket_error:
+                                print(f"Failed to auto-create ticket: {ticket_error}")
+                            print("-" * 40)
 
-                        print("-" * 40)
-                
-                # Save if changes
+                # Save JSON if changes
                 if new_emails:
                     with open(JSON_FILE, "w") as f:
                         json.dump(saved_emails, f, indent=4)
                         
             except Exception as e:
                 print(f"Email Polling Error: {e}")
+                # Re-connect on error if needed (simpler: just rely on loop retry)
             
             # Sleep in small chunks to allow stopping
             for _ in range(CHECK_INTERVAL):

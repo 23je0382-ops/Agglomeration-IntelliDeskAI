@@ -30,8 +30,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from mongodb import db as mongo_db
+
 @app.on_event("startup")
 async def startup_event():
+    # Connect to MongoDB
+    mongo_db.connect()
+    
     # Initialize RAG (Dataset Seeding)
     get_rag_service()
     
@@ -42,6 +47,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     get_email_service().stop()
+    mongo_db.close()
 
 # Include routers
 app.include_router(tickets.router, prefix="/api")

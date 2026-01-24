@@ -1,10 +1,10 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
-from typing import Optional
+from pymongo import MongoClient
 
 # MongoDB Configuration
 MONGODB_URL = "mongodb://localhost:27017"
-DATABASE_NAME = "Agglomeration2"
+DATABASE_NAME = "IntelliuDeskAI"
 
 class MongoDB:
     client: AsyncIOMotorClient = None
@@ -24,4 +24,10 @@ class MongoDB:
 db = MongoDB()
 
 def get_database():
+    """Get Async Database (for FastAPI)"""
     return db.db
+
+def get_sync_db():
+    """Get Sync Database (for Background Threads)"""
+    client = MongoClient(MONGODB_URL)
+    return client[DATABASE_NAME]

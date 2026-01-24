@@ -11,13 +11,15 @@ import {
     Zap,
     X,
     Mail,
+    Database,
 } from 'lucide-react';
 
 const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/create', icon: Plus, label: 'Create Ticket' },
     { to: '/tickets', icon: List, label: 'Ticket Queue' },
-    { to: '/emails', icon: Mail, label: 'Email Inbox' },
+    { to: '/emails', icon: Mail, label: 'Emails (JSON)' },
+    { to: '/emails-mongo', icon: Database, label: 'Emails (Mongo)' },
     { to: '/knowledge', icon: BookOpen, label: 'Knowledge Base' },
     { to: '/analytics', icon: BarChart3, label: 'Analytics' },
 ];
