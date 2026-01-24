@@ -52,6 +52,8 @@ export default function EmailInbox() {
         email.body.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const [selectedEmail, setSelectedEmail] = useState(null);
+
     return (
         <div className="fade-in space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -86,6 +88,7 @@ export default function EmailInbox() {
                     filteredEmails.map((email, index) => (
                         <div
                             key={email.uid || index}
+                            onClick={() => setSelectedEmail(email)}
                             className="neon-card group hover:bg-[rgba(139,92,246,0.05)] cursor-pointer p-6 transition-all duration-300 border border-[rgba(139,92,246,0.2)] hover:border-[var(--neon-purple)] relative"
                         >
                             <div className="flex items-start justify-between gap-4">
@@ -126,6 +129,54 @@ export default function EmailInbox() {
                     </div>
                 )}
             </div>
+
+            {/* Email Detail Modal */}
+            {selectedEmail && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-[var(--bg-secondary)] border border-[var(--neon-purple)] rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(139,92,246,0.3)]">
+                        {/* Header */}
+                        <div className="p-6 border-b border-[rgba(139,92,246,0.2)] flex justify-between items-start">
+                            <div>
+                                <h2 className="text-2xl font-bold text-[var(--neon-cyan)] mb-2">{selectedEmail.subject}</h2>
+                                <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+                                    <span className="font-semibold text-white">{selectedEmail.from}</span>
+                                    <span>•</span>
+                                    <span>{new Date(selectedEmail.date).toLocaleString()}</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setSelectedEmail(null)}
+                                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Body */}
+                        <div className="p-6 overflow-y-auto whitespace-pre-wrap text-[var(--text-primary)] leading-relaxed">
+                            {selectedEmail.body}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-6 border-t border-[rgba(139,92,246,0.2)] flex justify-end gap-3">
+                            <button
+                                onClick={(e) => { deleteEmail(e, selectedEmail.uid); setSelectedEmail(null); }}
+                                className="px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg hover:bg-red-500/30 transition-colors"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={() => setSelectedEmail(null)}
+                                className="px-4 py-2 bg-[var(--neon-purple)] text-white rounded-lg hover:bg-purple-600 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -9,6 +9,7 @@ import KnowledgeBase from './pages/KnowledgeBase';
 import Analytics from './pages/Analytics';
 
 import EmailInbox from './pages/EmailInbox';
+import EmailInboxMongo from './pages/EmailInboxMongo';
 import CustomerManagement from './pages/CustomerManagement';
 import SalesOutreach from './pages/SalesOutreach';
 import Organizations from './pages/Organizations';
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/tickets" element={<TicketQueue />} />
             <Route path="/tickets/:id" element={<TicketDetail />} />
             <Route path="/emails" element={<EmailInbox />} />
+            <Route path="/emails-mongo" element={<EmailInboxMongo />} />
             <Route path="/customers" element={<CustomerManagement />} />
             <Route path="/sales" element={<SalesOutreach />} />
             <Route path="/organizations" element={<Organizations />} />
