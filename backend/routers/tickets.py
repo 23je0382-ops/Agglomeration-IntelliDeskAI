@@ -18,11 +18,25 @@ def create_ticket(ticket: TicketCreate):
     """Create a new ticket with AI classification (response generated on-demand)"""
     groq_service = get_groq_service()
     
-    # Classify the ticket only (fast)
+    # Classify the ticket
     classification = groq_service.classify_ticket(ticket.title, ticket.description)
+
+    # Perform RAG search to get context
+    rag_service = get_rag_service()
+    search_results = rag_service.search(ticket.description, top_k=3)
     
-    # Skip response generation for faster ticket creation
-    # Response can be generated later via the /regenerate endpoint
+    context_text = ""
+    if search_results:
+        context_text = "\n".join([f"- {text}" for text, score, meta in search_results])
+        print(f"Retrieved {len(search_results)} chunks for context.")
+    
+    # Generate response
+    suggested_response, response_confidence = groq_service.generate_response(
+        ticket.title, 
+        ticket.description, 
+        classification["type"], 
+        context=context_text
+    )
     
     # Create ticket in database
     with get_db() as conn:
@@ -37,8 +51,9 @@ def create_ticket(ticket: TicketCreate):
             classification["type"],
             classification["priority"],
             TicketStatusModel.OPEN.value,
-            None,  # Response generated on-demand
-            classification["confidence"],  # Use actual confidence score
+            suggested_response,  # Generated response
+            classification["confidence"],  # Use classification confidence for the ticket badge
+                                         # (Note: we could also mix in response_confidence if needed)
             datetime.utcnow().isoformat()
         ))
         ticket_id = cursor.lastrowid
