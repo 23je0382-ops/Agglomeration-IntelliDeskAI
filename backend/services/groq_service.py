@@ -41,7 +41,7 @@ CATEGORIES (choose exactly one):
 
 PRIORITY LEVELS (choose exactly one):
 
-1. urgent - System completely down, security breach, data loss, business-critical blocker
+1. critical - System completely down, security breach, data loss, business-critical blocker
 2. high - Major feature broken, affecting multiple users, deadline pressure, revenue impact
 3. medium - Feature partially working, workaround exists, moderate impact
 4. low - Questions, minor issues, cosmetic issues, nice-to-have requests
@@ -56,7 +56,7 @@ Respond ONLY in the following JSON format:
 
 {{
   "category": "<one of the listed categories - use short form like 'Technical Support'>",
-  "priority": "<one of: urgent, high, medium, low>",
+  "priority": "<one of: critical, high, medium, low>",
   "confidence": <integer between 0 and 100>,
   "reason": "<one short sentence explaining why>"
 }}
@@ -92,7 +92,7 @@ class GroqService:
             result = json.loads(result_text)
             
             # Validate and normalize
-            valid_priorities = ["urgent", "high", "medium", "low"]
+            valid_priorities = ["critical", "high", "medium", "low"]
             
             # Use exact category from LLM
             category = result.get("category", "General Inquiry")

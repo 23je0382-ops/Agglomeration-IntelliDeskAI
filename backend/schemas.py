@@ -6,7 +6,7 @@ from enum import Enum
 
 
 class TicketPriority(str, Enum):
-    URGENT = "urgent"
+    CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"

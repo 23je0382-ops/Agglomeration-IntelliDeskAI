@@ -19,7 +19,7 @@ const COLORS = {
     billing: '#00ff88',
     account: '#ff00ff',
     general: '#00ffff',
-    urgent: '#ff0066',
+    critical: '#ff0066',
     high: '#ff6600',
     medium: '#ffff00',
     low: '#00ff88',

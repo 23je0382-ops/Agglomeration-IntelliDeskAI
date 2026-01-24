@@ -16,7 +16,7 @@ const typeOptions = [
     'Complaint/Escalation',
     'General Inquiry'
 ];
-const priorityOptions = ['all', 'urgent', 'high', 'medium', 'low'];
+const priorityOptions = ['all', 'critical', 'high', 'medium', 'low'];
 
 function TicketCard({ ticket }) {
     const createdAt = new Date(ticket.created_at).toLocaleDateString('en-US', {
@@ -50,8 +50,8 @@ function TicketCard({ ticket }) {
                         </span>
                         {ticket.confidence_score && (
                             <span className={`badge border ${ticket.confidence_score > 0.8 ? 'border-[var(--neon-green)] text-[var(--neon-green)]' :
-                                    ticket.confidence_score > 0.5 ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)]' :
-                                        'border-[var(--neon-red)] text-[var(--neon-red)]'
+                                ticket.confidence_score > 0.5 ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)]' :
+                                    'border-[var(--neon-red)] text-[var(--neon-red)]'
                                 } flex items-center gap-1`}>
                                 <Zap className="w-3 h-3" />
                                 {Math.round(ticket.confidence_score * 100)}%

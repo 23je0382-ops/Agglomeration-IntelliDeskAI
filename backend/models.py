@@ -13,7 +13,7 @@ class TicketType:
     pass
 
 class TicketPriority(str, enum.Enum):
-    URGENT = "urgent"
+    CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"

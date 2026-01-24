@@ -255,7 +255,7 @@ body {
 }
 
 /* Priority badges with neon glow */
-.priority-urgent {
+.priority-critical {
   background: rgba(255, 0, 51, 0.2);
   color: var(--neon-red);
   border: 1px solid var(--neon-red);
