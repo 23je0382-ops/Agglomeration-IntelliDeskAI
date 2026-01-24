@@ -5,7 +5,7 @@ services:
   - type: web
     name: intellidesk-backend
     env: python
-    region: singapore # Optional: Choose closest region
+    region: singapore
     buildCommand: |
       cd backend
       pip install --upgrade pip
@@ -17,7 +17,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: MONGO_URI
-        sync: false  # User must provide this in Dashboard
+        sync: false
       - key: GROQ_API_KEY
         sync: false
       - key: EMAIL_USER
@@ -27,3 +27,21 @@ services:
       - key: IMAP_SERVER
         sync: false
     autoDeploy: false
+
+# ---------------------------------------
+# FRONTEND SERVICE (Static Site)
+# ---------------------------------------
+staticSites:
+  - name: intellidesk-frontend
+    buildCommand: |
+      cd frontend
+      npm install
+      npm run build
+    publishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false # Set to Backend URL (e.g. https://intellidesk-backend.onrender.com)
+    routes:
+      - type: rewrite
+        source: /**
+        destination: /index.html
