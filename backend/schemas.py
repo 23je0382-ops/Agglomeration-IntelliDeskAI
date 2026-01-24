@@ -28,6 +28,16 @@ class TicketClassification(BaseModel):
     priority: TicketPriority
     confidence: float
 
+class TicketEmailResponse(BaseModel):
+    id: int
+    sender: str
+    subject: Optional[str]
+    body: Optional[str]
+    received_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class TicketResponse(BaseModel):
     id: int
     title: str
@@ -42,6 +52,7 @@ class TicketResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime]
     resolved_at: Optional[datetime]
+    emails: List[TicketEmailResponse] = []
 
     class Config:
         from_attributes = True
@@ -94,3 +105,50 @@ class AnalyticsResponse(BaseModel):
     tickets_by_category: List[CategoryStats]
     tickets_by_priority: List[CategoryStats]
     top_issues: List[str]
+
+# Account & Customer Schemas
+
+class AccountCreate(BaseModel):
+    name: str
+    domain: str
+    tier: Optional[str] = "potential"
+    industry: Optional[str] = None
+    status: Optional[str] = "active"
+
+class AccountResponse(BaseModel):
+    id: int
+    name: str
+    domain: str
+    tier: str
+    industry: Optional[str]
+    status: str
+    last_activity_at: Optional[str]
+    lead_score: float
+    user_count: int = 0
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class CustomerCreate(BaseModel):
+    email: EmailStr
+    name: Optional[str] = None
+    role: Optional[str] = None
+    department: Optional[str] = None
+    metadata: Optional[str] = None
+
+class CustomerResponse(BaseModel):
+    id: int
+    email: str
+    name: Optional[str]
+    account_id: Optional[int]
+    role: Optional[str]
+    department: Optional[str]
+    last_login_at: Optional[str]
+    metadata: Optional[str]
+    created_at: datetime
+    # We might want to include the account details here often
+    account: Optional[AccountResponse] = None
+
+    class Config:
+        from_attributes = True

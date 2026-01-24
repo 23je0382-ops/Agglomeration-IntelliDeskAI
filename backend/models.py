@@ -100,3 +100,76 @@ class DocumentChunk:
             content=row["content"],
             created_at=row["created_at"]
         )
+
+@dataclass
+class Account:
+    id: int
+    name: str
+    domain: str
+    tier: str = "potential"  # potential, trial, smb, enterprise
+    industry: Optional[str] = None
+    status: str = "active" # active, trial, lead, dormant
+    last_activity_at: Optional[str] = None
+    lead_score: float = 0.0
+    created_at: Optional[str] = None
+
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            id=row["id"],
+            name=row["name"],
+            domain=row["domain"],
+            tier=row["tier"],
+            industry=row["industry"],
+            status=row["status"] if "status" in row.keys() else "active",
+            last_activity_at=row["last_activity_at"] if "last_activity_at" in row.keys() else None,
+            lead_score=row["lead_score"] if "lead_score" in row.keys() else 0.0,
+            created_at=row["created_at"]
+        )
+
+@dataclass
+class Customer:
+    id: int
+    email: str
+    name: Optional[str]
+    account_id: Optional[int]
+    role: Optional[str] = None
+    department: Optional[str] = None
+    last_login_at: Optional[str] = None
+    metadata: Optional[str] = None  # JSON string for extra fields
+    created_at: Optional[str] = None
+
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            id=row["id"],
+            email=row["email"],
+            name=row["name"],
+            account_id=row["account_id"],
+            role=row["role"] if "role" in row.keys() else None,
+            department=row["department"] if "department" in row.keys() else None,
+            last_login_at=row["last_login_at"] if "last_login_at" in row.keys() else None,
+            metadata=row["metadata"],
+            created_at=row["created_at"]
+        )
+@dataclass
+class TicketEmail:
+    id: int
+    ticket_id: int
+    message_id: str
+    sender: str
+    subject: str
+    body: str
+    received_at: str
+    
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            id=row["id"],
+            ticket_id=row["ticket_id"],
+            message_id=row["message_id"],
+            sender=row["sender"],
+            subject=row["subject"],
+            body=row["body"],
+            received_at=row["received_at"]
+        )

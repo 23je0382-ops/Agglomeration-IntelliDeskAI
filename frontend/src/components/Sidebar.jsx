@@ -12,6 +12,9 @@ import {
     X,
     Mail,
     Database,
+    Users,
+    TrendingUp,
+    Building2,
 } from 'lucide-react';
 
 const navItems = [
@@ -20,6 +23,9 @@ const navItems = [
     { to: '/tickets', icon: List, label: 'Ticket Queue' },
     { to: '/emails', icon: Mail, label: 'Emails (JSON)' },
     { to: '/emails-mongo', icon: Database, label: 'Emails (Mongo)' },
+    { to: '/customers', icon: Users, label: 'Customers' },
+    { to: '/organizations', icon: Building2, label: 'Organizations' },
+    { to: '/sales', icon: TrendingUp, label: 'Sales & Outreach' },
     { to: '/knowledge', icon: BookOpen, label: 'Knowledge Base' },
     { to: '/analytics', icon: BarChart3, label: 'Analytics' },
 ];
@@ -96,9 +102,9 @@ export default function Sidebar({ isOpen, onClose }) {
                 <button
                     onClick={toggleDarkMode}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[var(--text-secondary)] 
-                        hover:bg-[rgba(255,0,255,0.1)] hover:text-[var(--neon-pink)] 
-                        border border-transparent hover:border-[rgba(255,0,255,0.3)]
-                        transition-all duration-300 group"
+                    hover:bg-[rgba(255,0,255,0.1)] hover:text-[var(--neon-pink)] 
+                    border border-transparent hover:border-[rgba(255,0,255,0.3)]
+                    transition-all duration-300 group"
                 >
                     {darkMode ? (
                         <Sun className="w-5 h-5 group-hover:drop-shadow-[0_0_8px_var(--neon-pink)]" />
