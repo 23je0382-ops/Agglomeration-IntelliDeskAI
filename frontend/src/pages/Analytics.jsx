@@ -15,34 +15,33 @@ import { TrendingUp, Clock, CheckCircle, AlertTriangle, Zap } from 'lucide-react
 import { analyticsAPI } from '../services/api';
 
 const COLORS = {
-    technical: '#bf00ff',
-    billing: '#00ff88',
-    account: '#ff00ff',
-    general: '#00ffff',
-    critical: '#ff0066',
-    high: '#ff6600',
-    medium: '#ffff00',
-    low: '#00ff88',
+    technical: '#7c3aed', // Purple
+    billing: '#059669',   // Green
+    account: '#db2777',   // Pink
+    general: '#2563eb',   // Blue
+    critical: '#dc2626',  // Red
+    high: '#ea580c',      // Orange
+    medium: '#ca8a04',    // Yellow/Gold
+    low: '#10b981',       // Green
 };
 
 function StatCard({ icon: Icon, label, value, subtext, borderColor }) {
     return (
-        <div className="neon-card group">
+        <div className="neon-card group hover:shadow-lg transition-shadow bg-[var(--bg-card)]">
             <div className="flex items-start justify-between">
                 <div>
                     <p className="text-[var(--text-muted)] text-sm font-semibold uppercase tracking-wider">{label}</p>
-                    <p className="text-4xl font-bold mt-3 font-['Orbitron']" style={{ color: borderColor, textShadow: `0 0 20px ${borderColor}40` }}>{value}</p>
+                    <p className="text-4xl font-bold mt-3 font-['Orbitron'] text-[var(--text-primary)]">{value}</p>
                     {subtext && <p className="text-sm text-[var(--text-muted)] mt-2">{subtext}</p>}
                 </div>
                 <div
                     className="w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300"
                     style={{
-                        background: `${borderColor}20`,
-                        border: `1px solid ${borderColor}40`,
-                        boxShadow: `0 0 20px ${borderColor}30`
+                        background: `${borderColor}15`, // Very light tint
+                        border: `1px solid ${borderColor}30`,
                     }}
                 >
-                    <Icon className="w-7 h-7" style={{ color: borderColor, filter: `drop-shadow(0 0 8px ${borderColor})` }} />
+                    <Icon className="w-7 h-7" style={{ color: borderColor }} />
                 </div>
             </div>
         </div>

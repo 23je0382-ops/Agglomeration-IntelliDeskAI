@@ -36,43 +36,42 @@ export default function CreateTicket() {
     if (createdTicket) {
         return (
             <div className="fade-in max-w-3xl mx-auto">
-                <div className="neon-card">
+                <div className="neon-card bg-[var(--bg-card)] shadow-xl">
                     {/* Success Header */}
                     <div className="text-center mb-8">
-                        <div className="w-20 h-20 rounded-full bg-[rgba(0,255,136,0.1)] border border-[var(--neon-green)] flex items-center justify-center mx-auto mb-4 shadow-[0_0_40px_rgba(0,255,136,0.3)]">
-                            <Zap className="w-10 h-10 text-[var(--neon-green)]" style={{ filter: 'drop-shadow(0 0 10px var(--neon-green))' }} />
+                        <div className="w-20 h-20 rounded-full bg-green-100 border border-green-200 flex items-center justify-center mx-auto mb-4 animate-in zoom-in duration-300">
+                            <Zap className="w-10 h-10 text-green-600" />
                         </div>
-                        <h2 className="text-3xl font-bold font-['Orbitron'] text-[var(--neon-green)]" style={{ textShadow: '0 0 20px rgba(0,255,136,0.5)' }}>Ticket Created!</h2>
+                        <h2 className="text-3xl font-bold font-['Orbitron'] text-green-700">Ticket Created!</h2>
                         <p className="text-[var(--text-muted)] mt-2">AI has classified and analyzed your ticket</p>
                     </div>
 
-                    {/* Cyber line */}
-                    <div className="h-[1px] bg-gradient-to-r from-transparent via-[var(--neon-green)] to-transparent mb-8"></div>
+                    <div className="h-[1px] bg-gradient-to-r from-transparent via-green-200 to-transparent mb-8"></div>
 
                     {/* Ticket Info */}
                     <div className="space-y-6">
-                        <div className="bg-[var(--bg-tertiary)]/50 rounded-xl p-5 border border-[rgba(0,255,255,0.1)]">
-                            <h3 className="font-bold text-xl text-[var(--neon-cyan)]">{createdTicket.title}</h3>
-                            <p className="text-[var(--text-secondary)] mt-3">{createdTicket.description}</p>
+                        <div className="bg-[var(--bg-tertiary)] rounded-xl p-6 border border-[var(--border-color)]">
+                            <h3 className="font-bold text-xl text-[var(--text-primary)]">{createdTicket.title}</h3>
+                            <p className="text-[var(--text-secondary)] mt-2 leading-relaxed">{createdTicket.description}</p>
                         </div>
 
                         {/* Classification Results */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-[var(--bg-tertiary)]/50 rounded-xl p-5 border border-[rgba(0,255,255,0.1)]">
-                                <div className="flex items-center gap-2 mb-3">
+                            <div className="bg-[var(--bg-tertiary)] rounded-xl p-5 border border-[var(--border-color)] flex flex-col justify-center">
+                                <div className="flex items-center gap-2 mb-2">
                                     <Tag className="w-4 h-4 text-[var(--neon-cyan)]" />
-                                    <span className="text-sm text-[var(--text-muted)] uppercase tracking-wider">Type</span>
+                                    <span className="text-sm text-[var(--text-muted)] uppercase tracking-wider font-semibold">Type</span>
                                 </div>
-                                <span className={`badge type-${createdTicket.type}`}>
-                                    {createdTicket.type}
+                                <span className={`badge type-${createdTicket.type} self-start`}>
+                                    {createdTicket.type?.replace(/-/g, ' ')}
                                 </span>
                             </div>
-                            <div className="bg-[var(--bg-tertiary)]/50 rounded-xl p-5 border border-[rgba(0,255,255,0.1)]">
-                                <div className="flex items-center gap-2 mb-3">
+                            <div className="bg-[var(--bg-tertiary)] rounded-xl p-5 border border-[var(--border-color)] flex flex-col justify-center">
+                                <div className="flex items-center gap-2 mb-2">
                                     <AlertCircle className="w-4 h-4 text-[var(--neon-pink)]" />
-                                    <span className="text-sm text-[var(--text-muted)] uppercase tracking-wider">Priority</span>
+                                    <span className="text-sm text-[var(--text-muted)] uppercase tracking-wider font-semibold">Priority</span>
                                 </div>
-                                <span className={`badge priority-${createdTicket.priority}`}>
+                                <span className={`badge priority-${createdTicket.priority} self-start`}>
                                     {createdTicket.priority}
                                 </span>
                             </div>
@@ -80,20 +79,18 @@ export default function CreateTicket() {
 
                         {/* AI Suggested Response */}
                         {createdTicket.suggested_response && (
-                            <div>
-                                <div className="flex items-center justify-between mb-3">
-                                    <h4 className="font-semibold flex items-center gap-2 text-[var(--neon-pink)]">
-                                        <Zap className="w-4 h-4" style={{ filter: 'drop-shadow(0 0 5px var(--neon-pink))' }} />
+                            <div className="bg-purple-50 border border-purple-100 rounded-xl p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="font-bold flex items-center gap-2 text-purple-700">
+                                        <Zap className="w-4 h-4 text-purple-600" />
                                         AI Suggested Response
                                     </h4>
-                                    <span className="text-sm text-[var(--text-muted)] bg-[var(--bg-tertiary)] px-3 py-1 rounded-full">
-                                        Confidence: <span className="text-[var(--neon-cyan)]">{Math.round((createdTicket.confidence_score || 0) * 100)}%</span>
+                                    <span className="text-xs font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full uppercase tracking-wide">
+                                        Confidence: {Math.round((createdTicket.confidence_score || 0) * 100)}%
                                     </span>
                                 </div>
-                                <div className="bg-[rgba(255,0,255,0.05)] border border-[rgba(255,0,255,0.2)] rounded-xl p-5">
-                                    <p className="text-[var(--text-secondary)] whitespace-pre-wrap leading-relaxed">
-                                        {createdTicket.suggested_response}
-                                    </p>
+                                <div className="text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
+                                    {createdTicket.suggested_response}
                                 </div>
                             </div>
                         )}
@@ -102,7 +99,7 @@ export default function CreateTicket() {
                         <div className="flex gap-4 pt-4">
                             <button
                                 onClick={() => navigate(`/tickets/${createdTicket.id}`)}
-                                className="flex-1 btn-gradient"
+                                className="flex-1 btn-gradient shadow-lg hover:shadow-xl transition-shadow"
                             >
                                 View & Manage Ticket
                             </button>
@@ -111,7 +108,7 @@ export default function CreateTicket() {
                                     setCreatedTicket(null);
                                     setFormData({ title: '', description: '', customer_email: '' });
                                 }}
-                                className="flex-1 btn-neon"
+                                className="flex-1 btn-neon text-[var(--text-primary)] border-[var(--border-color)] hover:bg-[var(--bg-tertiary)]"
                             >
                                 Create Another
                             </button>
@@ -125,24 +122,25 @@ export default function CreateTicket() {
     return (
         <div className="fade-in max-w-3xl mx-auto">
             <div className="mb-8">
-                <h1 className="text-4xl font-bold font-['Orbitron'] gradient-text">Create Ticket</h1>
+                <h1 className="text-4xl font-bold font-['Orbitron'] text-[var(--text-primary)]">Create Ticket</h1>
                 <p className="text-[var(--text-muted)] mt-2">
                     Submit a support request and our AI will classify and suggest a response
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="neon-card">
+            <form onSubmit={handleSubmit} className="neon-card bg-[var(--bg-card)] shadow-xl relative overflow-hidden">
                 {error && (
-                    <div className="mb-6 bg-[rgba(255,0,102,0.1)] border border-[var(--neon-red)] rounded-xl p-4 text-[var(--neon-red)]">
+                    <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 text-red-700">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
                         {error}
                     </div>
                 )}
 
-                <div className="space-y-6">
+                <div className="space-y-6 relative z-10">
                     {/* Title */}
                     <div>
-                        <label htmlFor="title" className="block text-sm font-semibold mb-2 text-[var(--neon-cyan)] uppercase tracking-wider">
-                            Ticket Title <span className="text-[var(--text-muted)] lowercase">(optional)</span>
+                        <label htmlFor="title" className="block text-sm font-bold mb-2 text-[var(--text-secondary)] uppercase tracking-wider">
+                            Ticket Title <span className="text-[var(--text-muted)] font-normal lowercase ml-1">(optional)</span>
                         </label>
                         <input
                             type="text"
@@ -151,14 +149,14 @@ export default function CreateTicket() {
                             value={formData.title}
                             onChange={handleChange}
                             placeholder="Brief summary (or auto-generated)"
-                            className="neon-input"
+                            className="neon-input bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] focus:border-[var(--neon-cyan)] focus:ring-1 focus:ring-[var(--neon-cyan)]"
                         />
                     </div>
 
                     {/* Description */}
                     <div>
-                        <label htmlFor="description" className="block text-sm font-semibold mb-2 text-[var(--neon-cyan)] uppercase tracking-wider">
-                            Description <span className="text-[var(--neon-red)]">*</span>
+                        <label htmlFor="description" className="block text-sm font-bold mb-2 text-[var(--text-secondary)] uppercase tracking-wider">
+                            Description <span className="text-red-500">*</span>
                         </label>
                         <textarea
                             id="description"
@@ -168,14 +166,14 @@ export default function CreateTicket() {
                             required
                             rows={6}
                             placeholder="Describe the issue in detail..."
-                            className="neon-input resize-none"
+                            className="neon-input resize-none bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] focus:border-[var(--neon-cyan)] focus:ring-1 focus:ring-[var(--neon-cyan)]"
                         />
                     </div>
 
                     {/* Customer Email */}
                     <div>
-                        <label htmlFor="customer_email" className="block text-sm font-semibold mb-2 text-[var(--neon-pink)] uppercase tracking-wider">
-                            Customer Email <span className="text-[var(--text-muted)] lowercase">(optional)</span>
+                        <label htmlFor="customer_email" className="block text-sm font-bold mb-2 text-[var(--text-secondary)] uppercase tracking-wider">
+                            Customer Email <span className="text-[var(--text-muted)] font-normal lowercase ml-1">(optional)</span>
                         </label>
                         <input
                             type="email"
@@ -184,22 +182,21 @@ export default function CreateTicket() {
                             value={formData.customer_email}
                             onChange={handleChange}
                             placeholder="customer@example.com"
-                            className="neon-input"
+                            className="neon-input bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] focus:border-[var(--neon-cyan)] focus:ring-1 focus:ring-[var(--neon-cyan)]"
                         />
                     </div>
 
-                    {/* Cyber line */}
-                    <div className="h-[1px] bg-gradient-to-r from-transparent via-[var(--neon-cyan)] to-transparent"></div>
+                    <div className="h-[1px] bg-[var(--border-color)] my-6"></div>
 
                     {/* Submit */}
                     <button
                         type="submit"
                         disabled={loading || !formData.description}
-                        className="w-full btn-gradient py-4 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                        className="w-full btn-gradient py-4 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
                     >
                         {loading ? (
                             <>
-                                <div className="neon-spinner w-5 h-5 !border-2"></div>
+                                <Loader2 className="w-5 h-5 animate-spin" />
                                 Analyzing with AI...
                             </>
                         ) : (
