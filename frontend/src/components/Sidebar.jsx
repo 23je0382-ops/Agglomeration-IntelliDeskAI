@@ -10,12 +10,14 @@ import {
     Moon,
     Zap,
     X,
+    Mail,
 } from 'lucide-react';
 
 const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/create', icon: Plus, label: 'Create Ticket' },
     { to: '/tickets', icon: List, label: 'Ticket Queue' },
+    { to: '/emails', icon: Mail, label: 'Email Inbox' },
     { to: '/knowledge', icon: BookOpen, label: 'Knowledge Base' },
     { to: '/analytics', icon: BarChart3, label: 'Analytics' },
 ];
@@ -26,7 +28,7 @@ export default function Sidebar({ isOpen, onClose }) {
     return (
         <aside
             className={`fixed top-0 left-0 z-50 h-screen w-[280px] bg-[var(--bg-secondary)] 
-                border-r border-[rgba(0,255,255,0.1)] flex flex-col transition-transform duration-300
+                border-r border-[rgba(139,92,246,0.1)] flex flex-col transition-transform duration-300
                 backdrop-blur-xl
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
                 lg:translate-x-0 lg:static lg:z-auto
@@ -36,11 +38,11 @@ export default function Sidebar({ isOpen, onClose }) {
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--neon-cyan)] to-transparent"></div>
 
             {/* Logo */}
-            <div className="p-6 border-b border-[rgba(0,255,255,0.1)] flex items-center justify-between">
+            <div className="p-6 border-b border-[rgba(139,92,246,0.1)] flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--neon-cyan)] to-[var(--neon-pink)] flex items-center justify-center
-                        shadow-[0_0_30px_rgba(0,255,255,0.5)]">
-                        <Zap className="w-6 h-6 text-black" />
+                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--neon-cyan)] to-[var(--neon-purple)] flex items-center justify-center
+                        shadow-[0_0_30px_rgba(139,92,246,0.4)]">
+                        <Zap className="w-6 h-6 text-white" />
                     </div>
                     <div>
                         <h1 className="font-bold text-xl gradient-text font-['Orbitron']">IntelliDesk</h1>
@@ -50,21 +52,21 @@ export default function Sidebar({ isOpen, onClose }) {
                 {/* Close button for mobile */}
                 <button
                     onClick={onClose}
-                    className="lg:hidden p-2 rounded-lg hover:bg-[rgba(0,255,255,0.1)] transition-colors border border-transparent hover:border-[var(--neon-cyan)]"
+                    className="lg:hidden p-2 rounded-lg hover:bg-[rgba(139,92,246,0.1)] transition-colors border border-transparent hover:border-[var(--neon-cyan)]"
                 >
                     <X className="w-5 h-5 text-[var(--neon-cyan)]" />
                 </button>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-6 space-y-8">
                 {navItems.map(({ to, icon: Icon, label }) => (
                     <NavLink
                         key={to}
                         to={to}
                         onClick={onClose}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group
+                            `flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-300 relative overflow-hidden group
                             ${isActive
                                 ? 'bg-[rgba(0,255,255,0.1)] text-[var(--neon-cyan)] border border-[var(--neon-cyan)] shadow-[0_0_20px_rgba(0,255,255,0.2)]'
                                 : 'text-[var(--text-secondary)] hover:bg-[rgba(0,255,255,0.05)] hover:text-[var(--neon-cyan)] border border-transparent hover:border-[rgba(0,255,255,0.3)]'

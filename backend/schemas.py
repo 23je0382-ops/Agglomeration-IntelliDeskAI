@@ -19,7 +19,7 @@ class TicketStatus(str, Enum):
 
 # Ticket Schemas
 class TicketCreate(BaseModel):
-    title: str
+    title: Optional[str] = None
     description: str
     customer_email: Optional[str] = None
 

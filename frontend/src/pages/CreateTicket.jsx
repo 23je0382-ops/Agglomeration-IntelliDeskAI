@@ -142,7 +142,7 @@ export default function CreateTicket() {
                     {/* Title */}
                     <div>
                         <label htmlFor="title" className="block text-sm font-semibold mb-2 text-[var(--neon-cyan)] uppercase tracking-wider">
-                            Ticket Title <span className="text-[var(--neon-red)]">*</span>
+                            Ticket Title <span className="text-[var(--text-muted)] lowercase">(optional)</span>
                         </label>
                         <input
                             type="text"
@@ -150,8 +150,7 @@ export default function CreateTicket() {
                             name="title"
                             value={formData.title}
                             onChange={handleChange}
-                            required
-                            placeholder="Brief summary of the issue"
+                            placeholder="Brief summary (or auto-generated)"
                             className="neon-input"
                         />
                     </div>
@@ -195,7 +194,7 @@ export default function CreateTicket() {
                     {/* Submit */}
                     <button
                         type="submit"
-                        disabled={loading || !formData.title || !formData.description}
+                        disabled={loading || !formData.description}
                         className="w-full btn-gradient py-4 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                     >
                         {loading ? (

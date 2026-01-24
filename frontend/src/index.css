@@ -15,28 +15,36 @@
   --border-color: rgba(255, 255, 255, 0.08);
   --border-glow: rgba(0, 255, 255, 0.3);
 
-  /* Neon Colors */
-  --neon-cyan: #00ffff;
-  --neon-pink: #ff00ff;
-  --neon-purple: #bf00ff;
-  --neon-blue: #00aaff;
-  --neon-green: #00ff88;
-  --neon-yellow: #ffff00;
-  --neon-orange: #ff6600;
-  --neon-red: #ff0066;
+  /* Neon Colors - Purple/Violet Theme (Stakent style) */
+  --neon-cyan: #8b5cf6;
+  /* Primary Violet */
+  --neon-pink: #d8b4fe;
+  /* Lavender/Pink */
+  --neon-purple: #7c3aed;
+  /* Deep Purple */
+  --neon-blue: #3b82f6;
+  /* Royal Blue */
+  --neon-green: #10b981;
+  /* Emerald (Success) */
+  --neon-yellow: #f59e0b;
+  /* Amber */
+  --neon-orange: #f97316;
+  /* Orange */
+  --neon-red: #ef4444;
+  /* Red */
 
   /* Gradients */
-  --accent-gradient: linear-gradient(135deg, #00ffff, #ff00ff);
-  --accent-gradient-2: linear-gradient(135deg, #00aaff, #bf00ff);
-  --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3);
-  --glow-pink: 0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(255, 0, 255, 0.3);
-  --glow-green: 0 0 20px rgba(0, 255, 136, 0.5), 0 0 40px rgba(0, 255, 136, 0.3);
+  --accent-gradient: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  --accent-gradient-2: linear-gradient(135deg, #6d28d9, #4c1d95);
+  --glow-cyan: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+  --glow-pink: 0 0 20px rgba(216, 180, 254, 0.5), 0 0 40px rgba(216, 180, 254, 0.3);
+  --glow-green: 0 0 20px rgba(16, 185, 129, 0.5), 0 0 40px rgba(16, 185, 129, 0.3);
 
-  /* Status colors with neon */
-  --success: #00ff88;
-  --warning: #ffff00;
-  --error: #ff0066;
-  --urgent: #ff0033;
+  /* Status Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --urgent: #7c3aed;
 
   --sidebar-width: 280px;
 }
@@ -53,10 +61,12 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   background-image:
-    radial-gradient(ellipse at 20% 80%, rgba(0, 255, 255, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(255, 0, 255, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(0, 170, 255, 0.05) 0%, transparent 70%);
+    linear-gradient(rgba(10, 10, 15, 0.85), rgba(10, 10, 15, 0.95)),
+    url('/background.png');
+  background-size: cover;
+  background-position: center;
   background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 /* Custom scrollbar with neon */
@@ -136,12 +146,17 @@ body {
 /* Neon card */
 .neon-card {
   background: var(--bg-card);
-  border-radius: 16px;
-  border: 1px solid rgba(0, 255, 255, 0.1);
-  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  /* Soft Purple Border */
+  padding: 32px;
+  /* Increased padding */
+  margin-bottom: 24px;
+  /* Proper margin */
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .neon-card::before {
@@ -161,16 +176,16 @@ body {
 }
 
 .neon-card:hover {
-  border-color: rgba(0, 255, 255, 0.3);
+  border-color: var(--neon-cyan);
   transform: translateY(-4px);
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(0, 255, 255, 0.1);
+    0 20px 40px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(139, 92, 246, 0.2);
 }
 
 /* Animated gradient button */
 .btn-gradient {
-  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple), var(--neon-cyan));
+  background: linear-gradient(90deg, #7c3aed, #8b5cf6, #d8b4fe, #7c3aed);
   background-size: 300% 100%;
   animation: gradient-shift 3s ease infinite;
   border: none;

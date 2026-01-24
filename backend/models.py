@@ -27,7 +27,7 @@ class TicketStatus(str, enum.Enum):
 @dataclass
 class Ticket:
     id: int
-    title: str
+    title: Optional[str]
     description: str
     customer_email: Optional[str] = None
     type: str = "General Inquiry"

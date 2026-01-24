@@ -8,6 +8,8 @@ import TicketDetail from './pages/TicketDetail';
 import KnowledgeBase from './pages/KnowledgeBase';
 import Analytics from './pages/Analytics';
 
+import EmailInbox from './pages/EmailInbox';
+
 export default function App() {
   return (
     <ThemeProvider>
@@ -18,6 +20,7 @@ export default function App() {
             <Route path="/create" element={<CreateTicket />} />
             <Route path="/tickets" element={<TicketQueue />} />
             <Route path="/tickets/:id" element={<TicketDetail />} />
+            <Route path="/emails" element={<EmailInbox />} />
             <Route path="/knowledge" element={<KnowledgeBase />} />
             <Route path="/analytics" element={<Analytics />} />
           </Routes>

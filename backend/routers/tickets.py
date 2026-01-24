@@ -10,58 +10,23 @@ from schemas import (
 )
 from services.groq_service import get_groq_service
 from services.rag_service import get_rag_service
+from services.ticket_service import create_ticket_logic
+from services.email_service import get_email_service
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 @router.post("/", response_model=TicketResponse)
 def create_ticket(ticket: TicketCreate):
     """Create a new ticket with AI classification (response generated on-demand)"""
-    groq_service = get_groq_service()
-    
-    # Classify the ticket
-    classification = groq_service.classify_ticket(ticket.title, ticket.description)
-
-    # Perform RAG search to get context
-    rag_service = get_rag_service()
-    search_results = rag_service.search(ticket.description, top_k=3)
-    
-    context_text = ""
-    if search_results:
-        context_text = "\n".join([f"- {text}" for text, score, meta in search_results])
-        print(f"Retrieved {len(search_results)} chunks for context.")
-    
-    # Generate response
-    suggested_response, response_confidence = groq_service.generate_response(
-        ticket.title, 
-        ticket.description, 
-        classification["type"], 
-        context=context_text
-    )
-    
-    # Create ticket in database
+    # Use the shared service logic
     with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO tickets (title, description, customer_email, type, priority, status, suggested_response, confidence_score, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            ticket.title,
-            ticket.description,
-            ticket.customer_email,
-            classification["type"],
-            classification["priority"],
-            TicketStatusModel.OPEN.value,
-            suggested_response,  # Generated response
-            classification["confidence"],  # Use classification confidence for the ticket badge
-                                         # (Note: we could also mix in response_confidence if needed)
-            datetime.utcnow().isoformat()
-        ))
-        ticket_id = cursor.lastrowid
-        
-        # Fetch the created ticket
-        cursor.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,))
-        row = cursor.fetchone()
-        return Ticket.from_row(row)
+        new_ticket = create_ticket_logic(
+            conn, 
+            ticket.title, 
+            ticket.description, 
+            ticket.customer_email
+        )
+        return new_ticket
 
 @router.get("/", response_model=List[TicketResponse])
 def get_tickets(
@@ -141,6 +106,16 @@ def update_ticket(ticket_id: int, ticket_update: TicketUpdate):
         row = cursor.fetchone()
         return Ticket.from_row(row)
 
+        if ticket_update.status:
+            updates.append("status = ?")
+            params.append(ticket_update.status.value)
+            if ticket_update.status == TicketStatusModel.RESOLVED:
+                updates.append("resolved_at = ?")
+                params.append(datetime.utcnow().isoformat())
+        
+        # ... (rest of update logic remains) ...
+        # Can't edit the whole function easily with replace, let's target the approve endpoint specifically.
+        
 @router.post("/{ticket_id}/approve", response_model=TicketResponse)
 def approve_response(ticket_id: int, approval: TicketApproveResponse):
     """Approve and send the response (optionally edited)"""
@@ -151,6 +126,9 @@ def approve_response(ticket_id: int, approval: TicketApproveResponse):
         if not row:
             raise HTTPException(status_code=404, detail="Ticket not found")
         
+        ticket = Ticket.from_row(row)
+        
+        # Update Ticket
         cursor.execute("""
             UPDATE tickets 
             SET final_response = ?, status = ?, resolved_at = ?, updated_at = ?
@@ -162,7 +140,21 @@ def approve_response(ticket_id: int, approval: TicketApproveResponse):
             datetime.utcnow().isoformat(),
             ticket_id
         ))
+        conn.commit()
         
+        # Send Email
+        if ticket.customer_email:
+            try:
+                email_service = get_email_service()
+                subject = f"Re: {ticket.title}"
+                # Construct a nice email body
+                body = f"Hello,\n\n{approval.final_response}\n\nBest regards,\nIntelliDesk AI"
+                
+                email_service.send_email(ticket.customer_email, subject, body)
+            except Exception as e:
+                print(f"Error sending email for ticket {ticket_id}: {e}")
+        
+        # Fetch updated ticket
         cursor.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,))
         row = cursor.fetchone()
         return Ticket.from_row(row)
