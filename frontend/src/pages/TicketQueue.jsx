@@ -48,6 +48,15 @@ function TicketCard({ ticket }) {
                         <span className={`badge priority-${ticket.priority}`}>
                             {ticket.priority}
                         </span>
+                        {ticket.confidence_score && (
+                            <span className={`badge border ${ticket.confidence_score > 0.8 ? 'border-[var(--neon-green)] text-[var(--neon-green)]' :
+                                    ticket.confidence_score > 0.5 ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)]' :
+                                        'border-[var(--neon-red)] text-[var(--neon-red)]'
+                                } flex items-center gap-1`}>
+                                <Zap className="w-3 h-3" />
+                                {Math.round(ticket.confidence_score * 100)}%
+                            </span>
+                        )}
                         <span className="text-xs text-[var(--text-muted)] flex items-center gap-1 ml-auto">
                             <Clock className="w-3 h-3" />
                             {createdAt}

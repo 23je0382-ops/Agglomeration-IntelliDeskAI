@@ -55,12 +55,20 @@ function RecentTicket({ ticket }) {
             <div className="flex-1 min-w-0">
                 <p className="font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--neon-cyan)] transition-colors">{ticket.title}</p>
                 <div className="flex items-center gap-2 mt-2">
-                    <span className={`badge type-${ticket.type}`}>
+                    <span className={`badge type-${(ticket.type || 'general').toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
                         {ticket.type}
                     </span>
                     <span className={`badge priority-${ticket.priority}`}>
                         {ticket.priority}
                     </span>
+                    {ticket.confidence_score && (
+                        <span className={`badge border ${ticket.confidence_score > 0.8 ? 'border-[var(--neon-green)] text-[var(--neon-green)]' :
+                                ticket.confidence_score > 0.5 ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)]' :
+                                    'border-[var(--neon-red)] text-[var(--neon-red)]'
+                            }`}>
+                            {Math.round(ticket.confidence_score * 100)}%
+                        </span>
+                    )}
                 </div>
             </div>
             <ArrowRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--neon-cyan)] group-hover:translate-x-1 transition-all" />

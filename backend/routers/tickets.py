@@ -38,7 +38,7 @@ def create_ticket(ticket: TicketCreate):
             classification["priority"],
             TicketStatusModel.OPEN.value,
             None,  # Response generated on-demand
-            None,  # Confidence set when response generated
+            classification["confidence"],  # Use actual confidence score
             datetime.utcnow().isoformat()
         ))
         ticket_id = cursor.lastrowid
