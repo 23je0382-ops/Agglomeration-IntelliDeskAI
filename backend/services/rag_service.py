@@ -188,6 +188,22 @@ class RAGService:
             print(f"Delete error: {e}")
             return 0
 
+    def compute_similarity(self, text1: str, text2: str) -> float:
+        """Compute cosine similarity between two texts"""
+        if not self.pc or not self.model:
+            return 0.0
+            
+        try:
+            embeddings = self.model.encode([text1, text2])
+            from sklearn.metrics.pairwise import cosine_similarity
+            score = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+            return float(score)
+        except Exception as e:
+            # Fallback for when sklearn is not installed or error
+            # Simple dot product if normalized? SentenceTransformer usually returns normalized matching
+            print(f"Similarity computation error: {e}")
+            return 0.0
+
     def get_stats(self) -> dict:
         """Get index statistics"""
         if not self.pc:

@@ -99,5 +99,16 @@ export const analyticsAPI = {
     getDaily: (days = 7) => fetchAPI(`/analytics/daily?days=${days}`),
 };
 
+// Customers API
+export const customersAPI = {
+    getCustomers: (params = {}) => {
+        const query = new URLSearchParams(params).toString();
+        return fetchAPI(`/customers${query ? `?${query}` : ''}`);
+    },
+
+    getAccounts: () => fetchAPI('/accounts'),
+    getAccountDetails: (id) => fetchAPI(`/accounts/${id}`),
+};
+
 // Health check
 export const healthCheck = () => fetchAPI('/health');

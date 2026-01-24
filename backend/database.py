@@ -76,6 +76,82 @@ def init_db():
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # Create accounts table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            domain TEXT NOT NULL UNIQUE,
+            tier TEXT DEFAULT 'potential',
+            industry TEXT,
+            status TEXT DEFAULT 'active',
+            last_activity_at TEXT,
+            lead_score REAL DEFAULT 0.0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
+    # Create customers table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS customers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL UNIQUE,
+            name TEXT,
+            account_id INTEGER,
+            role TEXT,
+            department TEXT,
+            last_login_at TEXT,
+            metadata TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(account_id) REFERENCES accounts(id)
+        )
+    """)
+    # Create ticket_emails table for threading
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ticket_emails (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ticket_id INTEGER NOT NULL,
+            message_id TEXT,
+            sender TEXT NOT NULL,
+            subject TEXT,
+            body TEXT,
+            received_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(ticket_id) REFERENCES tickets(id)
+        )
+    """)
+    
+    # Migration: Add columns if they don't exist (for existing DB)
+    try:
+        cursor.execute("ALTER TABLE customers ADD COLUMN role TEXT")
+    except sqlite3.OperationalError:
+        pass # Column already exists
+        
+    try:
+        cursor.execute("ALTER TABLE customers ADD COLUMN department TEXT")
+    except sqlite3.OperationalError:
+        pass
+        
+    try:
+        cursor.execute("ALTER TABLE customers ADD COLUMN last_login_at TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    # Migration for accounts
+    try:
+        cursor.execute("ALTER TABLE accounts ADD COLUMN status TEXT DEFAULT 'active'")
+    except sqlite3.OperationalError:
+        pass
+        
+    try:
+        cursor.execute("ALTER TABLE accounts ADD COLUMN last_activity_at TEXT")
+    except sqlite3.OperationalError:
+        pass
+        
+    try:
+        cursor.execute("ALTER TABLE accounts ADD COLUMN lead_score REAL DEFAULT 0.0")
+    except sqlite3.OperationalError:
+        pass
     
     conn.commit()
     conn.close()

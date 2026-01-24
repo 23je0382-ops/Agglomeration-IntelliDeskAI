@@ -69,7 +69,21 @@ def get_ticket(ticket_id: int):
         row = cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Ticket not found")
-        return Ticket.from_row(row)
+        
+        ticket = Ticket.from_row(row)
+        
+        # Fetch related emails
+        cursor.execute("SELECT * FROM ticket_emails WHERE ticket_id = ? ORDER BY received_at ASC", (ticket_id,))
+        email_rows = cursor.fetchall()
+        
+        # Currently Ticket model doesn't have 'emails' field, but Pydantic Schema does.
+        # We can attach it dynamically or rely on the response model constructing it from a dict/obj
+        
+        # Let's create a dict representation 
+        ticket_data = ticket.__dict__
+        ticket_data["emails"] = [dict(row) for row in email_rows] # sqlite3.Row -> dict
+        
+        return ticket_data
 
 @router.patch("/{ticket_id}", response_model=TicketResponse)
 def update_ticket(ticket_id: int, ticket_update: TicketUpdate):

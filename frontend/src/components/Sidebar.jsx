@@ -11,6 +11,9 @@ import {
     Zap,
     X,
     Mail,
+    Users,
+    TrendingUp,
+    Building2,
 } from 'lucide-react';
 
 const navItems = [
@@ -18,6 +21,9 @@ const navItems = [
     { to: '/create', icon: Plus, label: 'Create Ticket' },
     { to: '/tickets', icon: List, label: 'Ticket Queue' },
     { to: '/emails', icon: Mail, label: 'Email Inbox' },
+    { to: '/customers', icon: Users, label: 'Customers' },
+    { to: '/organizations', icon: Building2, label: 'Organizations' },
+    { to: '/sales', icon: TrendingUp, label: 'Sales & Outreach' },
     { to: '/knowledge', icon: BookOpen, label: 'Knowledge Base' },
     { to: '/analytics', icon: BarChart3, label: 'Analytics' },
 ];

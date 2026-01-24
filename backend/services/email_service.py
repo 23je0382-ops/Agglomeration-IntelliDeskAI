@@ -10,11 +10,14 @@ from email.mime.multipart import MIMEMultipart
 from imap_tools import MailBox, AND
 from database import get_db
 from services.ticket_service import create_ticket_logic
+from services.customer_service import get_or_create_customer
+from services.email_threading_service import get_threading_service
 
 # Credentials (as provided)
-EMAIL = "aglo.intellidesk.ai@gmail.com"
-APP_PASSWORD = "vswn gtvy jeoi ypah"
-IMAP_SERVER = "imap.gmail.com"
+# Credentials
+EMAIL = os.getenv("EMAIL_USER", "aglo.intellidesk.ai@gmail.com")
+APP_PASSWORD = os.getenv("EMAIL_PASSWORD", "vswn gtvy jeoi ypah")
+IMAP_SERVER = os.getenv("IMAP_SERVER", "imap.gmail.com")
 JSON_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "emails.json")
 CHECK_INTERVAL = 30  # Polling interval
 
@@ -60,7 +63,8 @@ class EmailIngestionService:
                 # Fetch Loop
                 new_emails = False
                 with MailBox(IMAP_SERVER).login(EMAIL, APP_PASSWORD) as mailbox:
-                    for msg in mailbox.fetch(AND(seen=False)):
+                    # Fetch last 20 emails, regardless of seen status
+                    for msg in mailbox.fetch(limit=20, reverse=True):
                         if msg.uid in saved_uids:
                             continue
 
@@ -88,19 +92,54 @@ class EmailIngestionService:
                         print("From:", email_data["from"])
                         print("Subject:", email_data["subject"])
                         
-                        # --- Auto-Create Ticket ---
+                        # --- Threading & Ticket Logic ---
                         try:
-                            print("Auto-Creating Ticket from Email...")
-                            with get_db() as conn:
-                                ticket = create_ticket_logic(
-                                    conn,
-                                    title=msg.subject,         # Use Subject as Title
-                                    description=body,          # Use Body as Description
-                                    customer_email=clean_from  # Use Clean Email
-                                )
-                                print(f"Ticket Created: ID {ticket['id']} - {ticket['title']}")
+                            # 1. Identify/Create Customer
+                            customer = get_or_create_customer(email=clean_from, name=clean_from.split("@")[0])
+                            
+                            # 2. Resolve Thread
+                            threading_service = get_threading_service()
+                            
+                            email_event = {
+                                "message_id": msg.uid, # Using UID as message_id proxy if header missing, but better to get Header
+                                "in_reply_to": msg.headers.get("in-reply-to", [])[0] if msg.headers.get("in-reply-to") else None,
+                                "references": msg.headers.get("references", []),
+                                "from_email": clean_from,
+                                "subject": msg.subject or "",
+                                "body": body
+                            }
+                            
+                            # Correction: imap_tools msg.headers is a dict, but values might be lists or strings depending on lib version
+                            # Generally msg.headers['in-reply-to'] might be a list.
+                            # Let's be safe.
+                            
+                            resolution = threading_service.resolve_ticket(email_event)
+                            ticket_id = resolution["ticket_id"]
+                            
+                            if ticket_id:
+                                print(f"Matched to Existing Ticket #{ticket_id} ({resolution['match_type']}) - {resolution['reason']}")
+                                # TODO: Maybe reopen ticket if closed?
+                                threading_service.save_email_to_ticket(ticket_id, email_event)
+                                
+                            else:
+                                print(f"No match found ({resolution['reason']}). Creating New Ticket...")
+                                with get_db() as conn:
+                                    ticket = create_ticket_logic(
+                                        conn,
+                                        title=msg.subject,
+                                        description=body,
+                                        customer_email=customer.email
+                                    )
+                                    ticket_id = ticket['id']
+                                    print(f"Ticket Created: ID {ticket_id} - {ticket['title']}")
+                                    
+                                    # Save first email to thread
+                                    threading_service.save_email_to_ticket(ticket_id, email_event)
+                                    
                         except Exception as ticket_error:
-                            print(f"Failed to auto-create ticket: {ticket_error}")
+                            print(f"Failed to process email/ticket: {ticket_error}")
+                            import traceback
+                            traceback.print_exc()
                         # ---------------------------
 
                         print("-" * 40)

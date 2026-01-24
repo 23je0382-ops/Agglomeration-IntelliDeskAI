@@ -154,6 +154,44 @@ export default function TicketDetail() {
                         <p className="text-[var(--text-secondary)] whitespace-pre-wrap">{ticket.description}</p>
                     </div>
 
+                    {/* Email History */}
+                    {ticket.emails && ticket.emails.length > 0 && (
+                        <div className="space-y-6">
+                            <h3 className="font-semibold flex items-center gap-2">
+                                <span className="p-1 rounded bg-[var(--bg-tertiary)]"><Clock size={16} /></span>
+                                Conversation History
+                            </h3>
+                            {/* Enhanced Deduplication: Filter out identical messages (content + sender) */
+                                Object.values(ticket.emails.reduce((acc, email) => {
+                                    // Create a unique key based on content to catch duplicates even if IDs match or differ
+                                    // We ignore small timestamp differences (race conditions)
+                                    const key = `${email.sender}-${email.subject}-${email.body.substring(0, 50)}`;
+                                    if (!acc[key]) {
+                                        acc[key] = email;
+                                    }
+                                    return acc;
+                                }, {}))
+                                    .sort((a, b) => new Date(a.received_at) - new Date(b.received_at))
+                                    .map((email) => (
+                                        <div key={email.id} className="bg-[var(--bg-secondary)] rounded-2xl p-6 border border-[var(--border-color)]">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--neon-blue)] to-[var(--neon-purple)] flex items-center justify-center text-xs font-bold text-white">
+                                                        {email.sender[0].toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-semibold text-sm">{email.sender}</div>
+                                                        <div className="text-xs text-[var(--text-muted)]">{new Date(email.received_at).toLocaleString()}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {email.subject && <div className="font-medium text-sm mb-2">{email.subject}</div>}
+                                            <p className="text-[var(--text-secondary)] text-sm whitespace-pre-wrap">{email.body}</p>
+                                        </div>
+                                    ))}
+                        </div>
+                    )}
+
                     {/* AI Response Section */}
                     <div className="bg-[var(--bg-secondary)] rounded-2xl p-6 border border-[var(--border-color)]">
                         <div className="flex items-center justify-between mb-4">
