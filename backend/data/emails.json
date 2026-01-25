@@ -518,5 +518,29 @@
         "subject": "Ram ram",
         "date": "2026-01-25T09:30:27+05:30",
         "body": "Ram ram\r\n"
+    },
+    {
+        "uid": "71",
+        "from": "shinabina445@gmail.com",
+        "clean_from": "shinabina445@gmail.com",
+        "subject": "Payment deducted but plan not activated",
+        "date": "2026-01-24T20:01:42-08:00",
+        "body": "My money was deducted but my subscription is still showing as free."
+    },
+    {
+        "uid": "70",
+        "from": "shinabina445@gmail.com",
+        "clean_from": "shinabina445@gmail.com",
+        "subject": "App crashes on dashboard load",
+        "date": "2026-01-24T20:01:31-08:00",
+        "body": "Whenever I open the dashboard, the app freezes and then crashes after a few seconds."
+    },
+    {
+        "uid": "69",
+        "from": "shinabina445@gmail.com",
+        "clean_from": "shinabina445@gmail.com",
+        "subject": "Password reset link not working",
+        "date": "2026-01-24T20:01:21-08:00",
+        "body": "I received the password reset email but the link shows an expired error immediately."
     }
 ]
