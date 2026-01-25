@@ -1,19 +1,13 @@
 services:
-  # ---------------------------------------
-  # BACKEND SERVICE (FastAPI)
-  # ---------------------------------------
   - type: web
-    name: intellidesk-backend
+    name: agglomeration-backend
     env: python
-    region: singapore
-    buildCommand: |
-      cd backend
-      pip install --upgrade pip
-      pip install -r requirements.txt
-    startCommand: |
-      cd backend
-      uvicorn main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
+      - key: ENV
+        value: production
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: MONGO_URI
@@ -26,21 +20,15 @@ services:
         sync: false
       - key: IMAP_SERVER
         sync: false
-    autoDeploy: false
 
-# ---------------------------------------
-# FRONTEND SERVICE (Static Site)
-# ---------------------------------------
-staticSites:
-  - name: intellidesk-frontend-v2
-    buildCommand: |
-      cd frontend
-      npm install
-      npm run build
-    publishPath: frontend/dist
+  - type: static
+    name: agglomeration-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        sync: false
+        sync: false # Set to Backend URL manually
     routes:
       - type: rewrite
         source: /**

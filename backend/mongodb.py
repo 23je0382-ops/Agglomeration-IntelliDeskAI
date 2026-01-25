@@ -3,15 +3,15 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 
 # MongoDB Configuration
-MONGODB_URL = "mongodb://localhost:27017"
-DATABASE_NAME = "IntelliuDeskAI"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+DATABASE_NAME = "IntelliDeskAI"
 
 class MongoDB:
     client: AsyncIOMotorClient = None
     db = None
 
     def connect(self):
-        self.client = AsyncIOMotorClient(MONGODB_URL)
+        self.client = AsyncIOMotorClient(MONGO_URI)
         self.db = self.client[DATABASE_NAME]
         print(f"Connected to MongoDB: {DATABASE_NAME}")
 
@@ -29,5 +29,5 @@ def get_database():
 
 def get_sync_db():
     """Get Sync Database (for Background Threads)"""
-    client = MongoClient(MONGODB_URL)
+    client = MongoClient(MONGO_URI)
     return client[DATABASE_NAME]

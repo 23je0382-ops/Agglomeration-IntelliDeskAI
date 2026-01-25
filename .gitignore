@@ -48,3 +48,12 @@ Thumbs.db
 
 # Uploads
 backend/uploads/
+
+# Deployment Cleanup
+backend/venv/
+frontend/node_modules/
+backend/intellidesk.db
+*.log
+launch.log
+*.db
+backend/__pycache__/
