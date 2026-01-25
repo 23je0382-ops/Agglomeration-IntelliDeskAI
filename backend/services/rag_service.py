@@ -146,6 +146,45 @@ class RAGService:
         print(f"Indexed {len(vectors)} chunks.")
         return len(vectors)
 
+    def add_knowledge_pair(self, question: str, answer: str, source_id: str = "auto") -> bool:
+        """
+        Add a Q&A pair to the knowledge base (Learning Loop).
+        Format: "Question: {q} Answer: {a}"
+        Metadata: type='learned_qa'
+        """
+        if not self.pc or not question or not answer:
+            return False
+            
+        try:
+            # Create knowledge text
+            text = f"Question: {question}\nAnswer: {answer}"
+            
+            # Generate ID
+            import uuid
+            vector_id = f"learned_{source_id}_{uuid.uuid4().hex[:8]}"
+            
+            print(f"Learning: Indexing resolved ticket as knowledge {vector_id}...")
+            
+            # Embed
+            embedding = self.model.encode(text).tolist()
+            
+            # Upsert
+            self.index.upsert(vectors=[{
+                "id": vector_id,
+                "values": embedding,
+                "metadata": {
+                    "text": text,
+                    "type": "learned_qa",
+                    "source_id": str(source_id),
+                    "created_at": time.time()
+                }
+            }])
+            print("Successfully learned new Q&A pair.")
+            return True
+        except Exception as e:
+            print(f"Learning error: {e}")
+            return False
+
     def search(self, query: str, top_k: int = 3) -> List[Tuple[str, float, dict]]:
         """Search the knowledge base for relevant chunks"""
         if not self.pc:

@@ -8,17 +8,18 @@ from typing import Tuple, Optional
 load_dotenv()
 
 # Classification system prompt
+# Classification system prompt
 CLASSIFICATION_PROMPT = """
 You are an AI support ticket classifier for a B2B SaaS company.
 
 Your task is to classify an incoming ticket into exactly ONE predefined category.
 You must base your decision ONLY on the ticket content.
-If multiple categories appear, choose the PRIMARY intent.
 
-Additionally, assign a priority level based on urgency and impact.
-
-Return a confidence score between 0 and 100.
-Be conservative with confidence when intent is unclear.
+Guidelines for Confidence Score (0-100):
+- 95-100: Obvious intent, specific keywords present (e.g. "password reset" -> "Access Request").
+- 80-94: Clear intent but slightly ambiguous wording.
+- 50-79: Vague request or matches multiple categories loosely.
+- 0-49: Completely unclear or gibberish.
 
 Output MUST be valid JSON and nothing else.
 """
@@ -160,37 +161,66 @@ class GroqService:
         ticket_type: str,
         context: Optional[str] = None
     ) -> Tuple[str, float]:
-        """Generate a suggested response using Groq LLM"""
-        context_str = f"\nRelevant context from knowledge base:\n{context}" if context else ""
+        """
+        Generate a suggested response using Groq LLM.
+        Now returns a calculated confidence score based on context relevance.
+        """
+        context_str = f"Relevant Knowledge Base Context:\n{context}" if context else "No specific knowledge base context available."
         
-        prompt = f"""Generate a professional and helpful support response for this ticket.
+        prompt = f"""
+You are a Senior Customer Support Agent. Your task is to draft a response to a ticket and rate your confidence.
+
+TICKET DETAILS:
+Title: {title}
+Type: {ticket_type}
+Description: {description}
+
 {context_str}
 
-Ticket Title: {title}
-Ticket Description: {description}
-Ticket Type: {ticket_type}
+INSTRUCTIONS:
+1. Draft a professional, empathetic response. Use the Context if relevant.
+2. Calculate Confidence Score (0-100):
+   - 90-100: Context DIRECTLY answers the question.
+   - 70-89: Context is related and helpful, but not an exact match.
+   - 40-69: General knowledge used, no specific context match.
+   - 0-39: Unsure, or question is unintelligible.
+3. If no context is present, your confidence MUST be < 60 (unless it's a generic greeting).
 
-Instructions:
-1. Be polite and professional.
-2. If context is provided, use it to answer the customer's question.
-3. If no specific context is found, provide a general helpful guide based on the ticket type.
-4. Keep the response concise but thorough.
-
-Respond ONLY with the response text."""
+OUTPUT FORMAT (JSON ONLY):
+{{
+  "response": "Dear [Customer], ...",
+  "confidence": <int>
+}}
+"""
 
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful customer support agent."},
+                    {"role": "system", "content": "You are a helpful support agent. Output strictly valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.7,
-                max_tokens=1000
+                temperature=0.3, # Lower temperature for stable JSON
+                max_tokens=800
             )
             
-            suggested_response = response.choices[0].message.content.strip()
-            return suggested_response, 0.9
+            content = response.choices[0].message.content.strip()
+            # Clean potential markdown fences
+            if content.startswith("```json"):
+                content = content.replace("```json", "").replace("```", "")
+            if content.startswith("```"):
+                content = content.replace("```", "")
+            
+            data = json.loads(content)
+            
+            suggested_response = data.get("response", "Thank you for contacting us. We received your request.")
+            confidence_raw = data.get("confidence", 50)
+            
+            # Normalize to 0.0 - 1.0
+            confidence = min(max(float(confidence_raw) / 100.0, 0.0), 1.0)
+            
+            print(f"Generated Response Confidence: {confidence}")
+            return suggested_response, confidence
             
         except Exception as e:
             print(f"Response generation error: {e}")

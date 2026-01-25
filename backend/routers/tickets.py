@@ -167,6 +167,17 @@ def approve_response(ticket_id: int, approval: TicketApproveResponse):
                 email_service.send_email(ticket.customer_email, subject, body)
             except Exception as e:
                 print(f"Error sending email for ticket {ticket_id}: {e}")
+
+        # Learning Loop: Add to RAG
+        try:
+            rag_service = get_rag_service()
+            rag_service.add_knowledge_pair(
+                question=f"{ticket.title}\n{ticket.description}",
+                answer=approval.final_response,
+                source_id=f"ticket_{ticket_id}"
+            )
+        except Exception as rag_err:
+            print(f"Learning Loop Error: {rag_err}")
         
         # Fetch updated ticket
         cursor.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,))

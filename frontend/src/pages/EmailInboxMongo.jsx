@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Mail, RefreshCw, Search, Clock, Trash2, Database } from 'lucide-react';
+import { Mail, RefreshCw, Search, Clock, Trash2, Database, X } from 'lucide-react';
 
 export default function EmailInboxMongo() {
     const [emails, setEmails] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState(null);
+    const [selectedEmail, setSelectedEmail] = useState(null);
 
     const fetchEmails = async () => {
         setLoading(true);
@@ -52,11 +53,14 @@ export default function EmailInboxMongo() {
     };
 
     const deleteEmail = async (e, uid) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         if (!confirm('Delete this email?')) return;
         try {
             await fetch(`http://127.0.0.1:8000/api/emails/${uid}`, { method: 'DELETE' });
             setEmails(prev => prev.filter(email => email.uid !== uid));
+            if (selectedEmail && selectedEmail.uid === uid) {
+                setSelectedEmail(null);
+            }
         } catch (e) {
             console.error(e);
         }
@@ -77,83 +81,104 @@ export default function EmailInboxMongo() {
     });
 
     return (
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-6 fade-in max-w-7xl mx-auto">
             {/* Header */}
-            <div className="flex justify-between items-center border-b border-gray-700 pb-4">
-                <h1 className="text-3xl font-bold text-green-400 flex items-center gap-2">
-                    <Database className="w-8 h-8" />
-                    Mongo Inbox ({emails.length})
+            <div className="flex justify-between items-center border-b border-[var(--border-color)] pb-4">
+                <h1 className="text-3xl font-bold text-[var(--text-primary)] flex items-center gap-2 font-['Orbitron']">
+                    <Database className="w-8 h-8 text-[var(--neon-cyan)]" />
+                    Mongo Inbox <span className="text-[var(--text-muted)] text-xl">({emails.length})</span>
                 </h1>
-                <button
-                    onClick={fetchEmails}
-                    className="px-4 py-2 bg-gray-800 rounded hover:bg-gray-700 flex items-center gap-2 border border-gray-600"
-                >
-                    <RefreshCw className={loading ? "animate-spin" : ""} /> Refresh
-                </button>
+
+                <div className="flex gap-2">
+                    <button
+                        onClick={async () => {
+                            if (!confirm("Are you sure you want to DELETE ALL emails? This cannot be undone.")) return;
+                            try {
+                                setLoading(true);
+                                await fetch('http://127.0.0.1:8000/api/emails/all', { method: 'DELETE' });
+                                await fetchEmails();
+                            } catch (e) {
+                                console.error(e);
+                                setError("Failed to delete all emails");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }}
+                        className="px-4 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 flex items-center gap-2 border border-red-200 transition-colors font-medium"
+                    >
+                        <Trash2 className="w-4 h-4" /> Delete All
+                    </button>
+                    <button
+                        onClick={fetchEmails}
+                        className="px-4 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded hover:bg-[var(--border-color)] flex items-center gap-2 border border-[var(--border-color)] transition-colors"
+                    >
+                        <RefreshCw className={loading ? "animate-spin" : ""} /> Refresh
+                    </button>
+                </div>
             </div>
 
             {/* Error Message */}
-            {error && (
-                <div className="bg-red-900/50 p-4 border border-red-500 rounded text-red-200">
-                    Error: {error}
-                </div>
-            )}
-
-            {/* Debug View (Visible if items exist but list broken) */}
-            <div className="bg-gray-900 p-2 rounded text-xs font-mono text-gray-500 mb-4 h-20 overflow-auto hidden">
-                {JSON.stringify(emails.slice(0, 2), null, 2)}
-            </div>
+            {
+                error && (
+                    <div className="bg-red-50 p-4 border border-red-200 rounded text-red-700 flex items-center gap-2">
+                        Warning: {error}
+                    </div>
+                )
+            }
 
             {/* Search */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
                 <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Search emails..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full bg-black/50 border border-green-500/30 rounded py-2 pl-10 text-white focus:border-green-400 outline-none transition-colors"
+                    className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded py-3 pl-10 text-[var(--text-primary)] focus:border-[var(--neon-cyan)] outline-none transition-colors shadow-sm"
                 />
             </div>
 
             {/* List */}
             <div className="grid gap-4">
                 {filtered.length === 0 ? (
-                    <div className="text-center py-10 text-gray-500">
+                    <div className="text-center py-10 text-[var(--text-muted)]">
                         No emails found using "{searchTerm}"
                     </div>
                 ) : (
                     filtered.map((email, idx) => (
                         <div
                             key={email?.uid || idx}
-                            className="bg-gray-800/40 border border-green-500/20 p-4 rounded hover:border-green-500/60 transition-colors group relative"
+                            onClick={() => setSelectedEmail(email)}
+                            className="bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-xl hover:shadow-md transition-all group relative cursor-pointer"
                         >
                             <div className="flex justify-between items-start gap-4">
                                 <div className="flex-1 overflow-hidden">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Mail className="w-4 h-4 text-green-400" />
-                                        <span className="font-bold text-white truncate">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="p-2 bg-[var(--bg-tertiary)] rounded-full">
+                                            <Mail className="w-4 h-4 text-[var(--neon-purple)]" />
+                                        </div>
+                                        <span className="font-bold text-[var(--text-primary)] truncate">
                                             {email?.from || "Unknown Sender"}
                                         </span>
-                                        <span className="text-[10px] px-1 bg-green-900/50 text-green-400 rounded border border-green-500/30">
+                                        <span className="text-[10px] px-2 py-0.5 bg-[var(--bg-tertiary)] text-[var(--text-muted)] rounded border border-[var(--border-color)]">
                                             UID: {email?.uid}
                                         </span>
                                     </div>
-                                    <h3 className="text-lg font-semibold text-green-300 truncate">
+                                    <h3 className="text-lg font-semibold text-[var(--text-primary)] truncate mb-1">
                                         {email?.subject || "(No Subject)"}
                                     </h3>
-                                    <p className="text-gray-400 text-sm line-clamp-2">
+                                    <p className="text-[var(--text-secondary)] text-sm line-clamp-2 leading-relaxed">
                                         {email?.body || ""}
                                     </p>
                                 </div>
                                 <div className="flex flex-col items-end gap-2">
-                                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                                    <span className="text-xs text-[var(--text-muted)] flex items-center gap-1 bg-[var(--bg-tertiary)] px-2 py-1 rounded">
                                         <Clock className="w-3 h-3" />
                                         {renderDate(email?.date)}
                                     </span>
                                     <button
                                         onClick={(e) => deleteEmail(e, email.uid)}
-                                        className="p-2 bg-red-500/10 text-red-400 rounded hover:bg-red-500/20"
+                                        className="p-2 bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors"
                                         title="Delete"
                                     >
                                         <Trash2 className="w-4 h-4" />
@@ -164,6 +189,54 @@ export default function EmailInboxMongo() {
                     ))
                 )}
             </div>
-        </div>
+
+            {/* Detail Modal */}
+            {
+                selectedEmail && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl">
+                            {/* Modal Header */}
+                            <div className="p-6 border-b border-[var(--border-color)] flex justify-between items-start bg-[var(--bg-tertiary)]/50 rounded-t-2xl">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-['Orbitron']">{selectedEmail.subject}</h2>
+                                    <div className="flex items-center gap-3 text-[var(--text-secondary)]">
+                                        <span className="font-semibold">{selectedEmail.from}</span>
+                                        <span>•</span>
+                                        <span>{new Date(selectedEmail.date).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setSelectedEmail(null)}
+                                    className="p-2 hover:bg-[var(--border-color)] rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="p-8 overflow-y-auto whitespace-pre-wrap text-[var(--text-primary)] leading-relaxed text-lg bg-[var(--bg-card)]">
+                                {selectedEmail.body}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="p-6 border-t border-[var(--border-color)] flex justify-end gap-3 bg-[var(--bg-tertiary)]/30 rounded-b-2xl">
+                                <button
+                                    onClick={(e) => deleteEmail(e, selectedEmail.uid)}
+                                    className="px-5 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition-colors font-medium flex items-center gap-2"
+                                >
+                                    <Trash2 className="w-4 h-4" /> Delete
+                                </button>
+                                <button
+                                    onClick={() => setSelectedEmail(null)}
+                                    className="px-5 py-2.5 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl hover:bg-[var(--border-color)] transition-colors font-medium"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        </div >
     );
 }

@@ -29,8 +29,7 @@ starlette>=0.35.1
 
 # Validation
 pydantic>=2.5.3
-email-validator>=2.1.0
 
-# Fuzzy Matching (Thread Detection)
+# Fuzzy Matching
 fuzzywuzzy>=0.18.0
-python-Levenshtein>=0.25.0
+python-Levenshtein>=0.12.2

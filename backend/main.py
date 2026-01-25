@@ -53,6 +53,7 @@ async def shutdown_event():
 app.include_router(tickets.router, prefix="/api")
 app.include_router(knowledge.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
+app.include_router(analytics.router, prefix="/api")
 app.include_router(emails.router, prefix="/api")
 app.include_router(customers.router, prefix="/api")
 

@@ -63,8 +63,8 @@ function RecentTicket({ ticket }) {
                     </span>
                     {ticket.confidence_score && (
                         <span className={`badge border ${ticket.confidence_score > 0.8 ? 'border-[var(--neon-green)] text-[var(--neon-green)]' :
-                                ticket.confidence_score > 0.5 ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)]' :
-                                    'border-[var(--neon-red)] text-[var(--neon-red)]'
+                            ticket.confidence_score > 0.5 ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)]' :
+                                'border-[var(--neon-red)] text-[var(--neon-red)]'
                             }`}>
                             {Math.round(ticket.confidence_score * 100)}%
                         </span>
@@ -154,7 +154,7 @@ export default function Dashboard() {
                 <StatCard
                     icon={Clock}
                     label="Avg. Resolution"
-                    value={analytics?.avg_resolution_time_hours ? `${analytics.avg_resolution_time_hours}h` : 'N/A'}
+                    value={analytics?.avg_resolution_time_hours ? `${Math.round(analytics.avg_resolution_time_hours * 60)}m` : 'N/A'}
                     borderColor="var(--neon-pink)"
                 />
             </div>

@@ -110,13 +110,16 @@ class EmailIngestionService:
                                 }
                                 
                                 resolution = threading_service.resolve_ticket(email_event)
-                                ticket_id = resolution["ticket_id"]
                                 
-                                if ticket_id:
-                                    print(f"Matched to Existing Ticket #{ticket_id} ({resolution['match_type']}) - {resolution['reason']}")
+                                # Use Action field (Preferred) or fallback to ticket_id check
+                                action = resolution.get("action")
+                                ticket_id = resolution.get("ticket_id")
+                                
+                                if action == "update" and ticket_id:
+                                    print(f"Matched to Existing Ticket #{ticket_id} ({resolution['matched_by']}) - Confidence: {resolution['confidence']}")
                                     threading_service.save_email_to_ticket(ticket_id, email_event)
                                 else:
-                                    print(f"No match found ({resolution['reason']}). Creating New Ticket...")
+                                    print(f"No match found ({resolution.get('matched_by', 'new')}). Creating New Ticket...")
                                     with get_db() as conn:
                                         ticket = create_ticket_logic(
                                             conn,

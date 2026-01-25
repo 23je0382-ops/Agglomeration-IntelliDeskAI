@@ -61,13 +61,33 @@ export default function EmailInbox() {
                     <h1 className="text-4xl font-bold font-['Orbitron'] gradient-text">Email Inbox</h1>
                     <p className="text-[var(--text-muted)] mt-2">Real-time harvested email communications</p>
                 </div>
-                <button
-                    onClick={fetchEmails}
-                    className="btn-neon flex items-center gap-2 self-start"
-                >
-                    <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh
-                </button>
+                <div className="flex gap-2 self-start">
+                    <button
+                        onClick={async () => {
+                            if (!confirm("Are you sure you want to DELETE ALL emails?")) return;
+                            try {
+                                setLoading(true);
+                                await fetch('http://127.0.0.1:8000/api/emails/all', { method: 'DELETE' });
+                                await fetchEmails();
+                            } catch (e) {
+                                console.error(e);
+                            } finally {
+                                setLoading(false);
+                            }
+                        }}
+                        className="btn-basic flex items-center gap-2 border border-red-500/50 text-red-400 hover:bg-red-500/10"
+                    >
+                        <Trash2 className="w-5 h-5" />
+                        Delete All
+                    </button>
+                    <button
+                        onClick={fetchEmails}
+                        className="btn-neon flex items-center gap-2"
+                    >
+                        <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                        Refresh
+                    </button>
+                </div>
             </div>
 
             {/* Search */}

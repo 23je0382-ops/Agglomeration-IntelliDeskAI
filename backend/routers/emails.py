@@ -94,3 +94,28 @@ async def delete_email(uid: str):
         return {"message": "Email not found in stores"}
         
     return {"message": "; ".join(msg)}
+
+@router.delete("/all")
+async def delete_all_emails():
+    """Delete ALL emails from MongoDB and JSON"""
+    msg = []
+    # Mongo
+    try:
+        db = get_database()
+        res = await db['Email-Store'].delete_many({})
+        msg.append(f"Deleted {res.deleted_count} from MongoDB")
+    except Exception as e:
+        msg.append(f"Mongo Error: {str(e)}")
+        
+    # JSON
+    try:
+        if os.path.exists(JSON_FILE):
+            os.remove(JSON_FILE)
+            msg.append("Deleted JSON file")
+            # Recreate empty
+            with open(JSON_FILE, "w") as f:
+                json.dump([], f)
+    except Exception as e:
+        msg.append(f"JSON Error: {str(e)}")
+        
+    return {"message": "; ".join(msg)}
