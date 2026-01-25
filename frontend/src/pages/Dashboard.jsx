@@ -6,7 +6,7 @@ import {
     CheckCircle,
     AlertTriangle,
     TrendingUp,
-    Plus,
+
     ArrowRight,
     Zap,
 } from 'lucide-react';
@@ -48,7 +48,7 @@ function RecentTicket({ ticket }) {
     return (
         <Link
             to={`/tickets/${ticket.id}`}
-            className="flex items-center justify-between p-4 rounded-xl bg-[var(--bg-tertiary)]/50 
+            className="flex items-center justify-between p-4 rounded-3xl bg-[var(--bg-tertiary)]/50 
                 hover:bg-[rgba(0,255,255,0.05)] border border-transparent hover:border-[rgba(0,255,255,0.2)]
                 transition-all duration-300 group"
         >
@@ -122,13 +122,7 @@ export default function Dashboard() {
                     <h1 className="text-4xl font-bold font-['Orbitron'] gradient-text">Dashboard</h1>
                     <p className="text-[var(--text-muted)] mt-2">Welcome back! Here's your helpdesk overview.</p>
                 </div>
-                <Link
-                    to="/create"
-                    className="btn-gradient flex items-center gap-2 w-fit"
-                >
-                    <Plus className="w-5 h-5" />
-                    New Ticket
-                </Link>
+
             </div>
 
             {/* Stats Grid */}

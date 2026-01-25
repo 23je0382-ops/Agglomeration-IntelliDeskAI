@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ChevronDown, ArrowRight, Clock, Zap } from 'lucide-react';
+import { Search, ChevronDown, ArrowRight, Clock, Zap, RefreshCw } from 'lucide-react';
 import { ticketsAPI } from '../services/api';
 
 const statusOptions = ['all', 'open', 'in_progress', 'resolved', 'closed'];
@@ -79,24 +79,27 @@ export default function TicketQueue() {
     });
     const [searchQuery, setSearchQuery] = useState('');
 
-    useEffect(() => {
-        async function fetchTickets() {
-            setLoading(true);
-            try {
-                const params = {};
-                if (filters.status !== 'all') params.status = filters.status;
-                if (filters.type !== 'all') params.type = filters.type;
-                if (filters.priority !== 'all') params.priority = filters.priority;
+    const fetchTickets = async (silent = false) => {
+        if (!silent) setLoading(true);
+        try {
+            const params = {};
+            if (filters.status !== 'all') params.status = filters.status;
+            if (filters.type !== 'all') params.type = filters.type;
+            if (filters.priority !== 'all') params.priority = filters.priority;
 
-                const data = await ticketsAPI.getAll(params);
-                setTickets(data);
-            } catch (error) {
-                console.error('Failed to fetch tickets:', error);
-            } finally {
-                setLoading(false);
-            }
+            const data = await ticketsAPI.getAll(params);
+            setTickets(data);
+        } catch (error) {
+            console.error('Failed to fetch tickets:', error);
+        } finally {
+            if (!silent) setLoading(false);
         }
+    };
+
+    useEffect(() => {
         fetchTickets();
+        const interval = setInterval(() => fetchTickets(true), 10000);
+        return () => clearInterval(interval);
     }, [filters]);
 
     const filteredTickets = tickets.filter((ticket) => {
@@ -118,6 +121,13 @@ export default function TicketQueue() {
                         <span className="text-[var(--neon-cyan)]">{filteredTickets.length}</span> ticket{filteredTickets.length !== 1 ? 's' : ''}
                     </p>
                 </div>
+
+                <button
+                    onClick={() => fetchTickets(false)}
+                    className="px-4 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded hover:bg-[var(--border-color)] flex items-center gap-2 border border-[var(--border-color)] transition-colors"
+                >
+                    <RefreshCw className={loading ? "animate-spin" : ""} /> Refresh
+                </button>
             </div>
 
             {/* Filters */}
@@ -189,7 +199,7 @@ export default function TicketQueue() {
             <div className="h-[1px] bg-gradient-to-r from-transparent via-[var(--neon-cyan)] to-transparent mb-6"></div>
 
             {/* Ticket List */}
-            {loading ? (
+            {loading && tickets.length === 0 ? (
                 <div className="space-y-4">
                     {[...Array(5)].map((_, i) => (
                         <div key={i} className="neon-card h-32 flex items-center justify-center">

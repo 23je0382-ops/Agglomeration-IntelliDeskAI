@@ -21,7 +21,7 @@ const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/create', icon: Plus, label: 'Create Ticket' },
     { to: '/tickets', icon: List, label: 'Ticket Queue' },
-    { to: '/emails', icon: Mail, label: 'Emails (JSON)' },
+    { to: '/emails', icon: Mail, label: 'Email (SQLite)' },
     { to: '/emails-mongo', icon: Database, label: 'Emails (Mongo)' },
     { to: '/customers', icon: Users, label: 'Customers' },
     { to: '/organizations', icon: Building2, label: 'Organizations' },
@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen, onClose }) {
             {/* Logo */}
             <div className="p-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    
+
                     <div>
                         <h1 className="font-bold text-xl font-['Orbitron'] text-[var(--text-primary)] tracking-wide">IntelliDesk</h1>
                         <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-semibold pl-0.5">AI Helpdesk</p>
@@ -92,7 +92,7 @@ export default function Sidebar({ isOpen, onClose }) {
             </nav>
 
             {/* Footer Section */}
-            
+
         </aside>
     );
 }
