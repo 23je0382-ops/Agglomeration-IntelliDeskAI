@@ -28,17 +28,16 @@ services:
         sync: false
     autoDeploy: false
 
-  # ---------------------------------------
-  # FRONTEND SERVICE (Static Site)
-  # ---------------------------------------
-  - type: web
-    name: intellidesk-frontend-v2
-    env: static
+# ---------------------------------------
+# FRONTEND SERVICE (Static Site)
+# ---------------------------------------
+staticSites:
+  - name: intellidesk-frontend-v2
     buildCommand: |
       cd frontend
       npm install
       npm run build
-    staticPublishPath: frontend/dist
+    publishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
         sync: false
