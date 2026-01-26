@@ -33,7 +33,7 @@ export default function OrganizationDetail() {
             // For now, let's assume we can fetch customers filtered by account_id.
 
             const [accData, usersData] = await Promise.all([
-                fetch(`http://127.0.0.1:8000/api/accounts/${id}`).then(res => res.json()), // Direct fetch for now or update api.js
+                fetch(`https://agglomeration-intellideskai.onrender.com/api/accounts/${id}`).then(res => res.json()), // Direct fetch for now or update api.js
                 customersAPI.getCustomers({ account_id: id })
             ]);
 
@@ -156,3 +156,4 @@ export default function OrganizationDetail() {
         </div>
     );
 }
+

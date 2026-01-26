@@ -52,7 +52,7 @@ export default function UserManagement() {
 
     async function fetchUsers() {
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/auth/users', {
+            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/users', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch users');
@@ -71,7 +71,7 @@ export default function UserManagement() {
         setError(null);
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/auth/add-user', {
+            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/add-user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export default function UserManagement() {
             const payload = { ...editFormData };
             if (!payload.password) delete payload.password;
 
-            const res = await fetch(`http://127.0.0.1:8000/api/auth/users/${editingUser.id}`, {
+            const res = await fetch(`https://agglomeration-intellideskai.onrender.com/api/auth/users/${editingUser.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ export default function UserManagement() {
         setError(null);
 
         try {
-            const res = await fetch(`http://127.0.0.1:8000/api/auth/users/${userToDelete.id}`, {
+            const res = await fetch(`https://agglomeration-intellideskai.onrender.com/api/auth/users/${userToDelete.id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -498,3 +498,4 @@ export default function UserManagement() {
         </div>
     );
 }
+

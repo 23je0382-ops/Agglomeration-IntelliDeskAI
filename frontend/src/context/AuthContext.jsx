@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         if (token) {
             // Verify token and get user info
-            fetch('http://127.0.0.1:8000/api/auth/me', {
+            fetch('https://agglomeration-intellideskai.onrender.com/api/auth/me', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
     const refreshUser = async () => {
         if (!token) return;
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/auth/me', {
+            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
 
     const login = async (email, password) => {
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/auth/login', {
+            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -73,7 +73,7 @@ export function AuthProvider({ children }) {
 
     const register = async (email, password, name) => {
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/auth/register', {
+            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, name })
@@ -120,3 +120,4 @@ export function AuthProvider({ children }) {
 export function useAuth() {
     return useContext(AuthContext);
 }
+

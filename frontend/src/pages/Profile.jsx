@@ -60,7 +60,7 @@ export default function Profile() {
                 payload.password = formData.password;
             }
 
-            const res = await fetch('http://127.0.0.1:8000/api/auth/me', {
+            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/me', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -377,3 +377,4 @@ export default function Profile() {
         </div>
     );
 }
+

@@ -11,7 +11,7 @@ export default function EmailInbox() {
         setLoading(true);
         try {
             // Fetch directly from API
-            const response = await fetch('http://127.0.0.1:8000/api/emails/');
+            const response = await fetch('https://agglomeration-intellideskai.onrender.com/api/emails/');
             if (response.ok) {
                 const data = await response.json();
                 setEmails(data);
@@ -35,7 +35,7 @@ export default function EmailInbox() {
         if (!confirm('Are you sure you want to delete this email?')) return;
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/emails/${uid}`, {
+            const response = await fetch(`https://agglomeration-intellideskai.onrender.com/api/emails/${uid}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -66,7 +66,7 @@ export default function EmailInbox() {
                 toEmail = toEmail.split('<')[1].replace('>', '').trim();
             }
 
-            const response = await fetch('http://127.0.0.1:8000/api/emails/send', {
+            const response = await fetch('https://agglomeration-intellideskai.onrender.com/api/emails/send', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -103,7 +103,7 @@ export default function EmailInbox() {
                             if (!confirm("Are you sure you want to DELETE ALL emails? This cannot be undone.")) return;
                             try {
                                 setLoading(true);
-                                await fetch('http://127.0.0.1:8000/api/emails/all', { method: 'DELETE' });
+                                await fetch('https://agglomeration-intellideskai.onrender.com/api/emails/all', { method: 'DELETE' });
                                 await fetchEmails();
                             } catch (e) {
                                 console.error(e);
@@ -331,3 +331,4 @@ export default function EmailInbox() {
         </div>
     );
 }
+

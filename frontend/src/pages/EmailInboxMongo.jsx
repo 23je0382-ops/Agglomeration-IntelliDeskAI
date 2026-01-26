@@ -20,7 +20,7 @@ export default function EmailInboxMongo() {
                 toEmail = toEmail.split('<')[1].replace('>', '').trim();
             }
 
-            const response = await fetch('http://127.0.0.1:8000/api/emails/send', {
+            const response = await fetch('https://agglomeration-intellideskai.onrender.com/api/emails/send', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -49,7 +49,7 @@ export default function EmailInboxMongo() {
         setError(null);
         try {
             console.log("DEBUG: Fetching Mongo Emails...");
-            const response = await fetch('http://127.0.0.1:8000/api/emails/mongo');
+            const response = await fetch('https://agglomeration-intellideskai.onrender.com/api/emails/mongo');
             if (response.ok) {
                 const data = await response.json();
                 console.log("DEBUG: Data received:", data);
@@ -92,7 +92,7 @@ export default function EmailInboxMongo() {
         if (e) e.stopPropagation();
         if (!confirm('Delete this email?')) return;
         try {
-            await fetch(`http://127.0.0.1:8000/api/emails/${uid}`, { method: 'DELETE' });
+            await fetch(`https://agglomeration-intellideskai.onrender.com/api/emails/${uid}`, { method: 'DELETE' });
             setEmails(prev => prev.filter(email => email.uid !== uid));
             if (selectedEmail && selectedEmail.uid === uid) {
                 setSelectedEmail(null);
@@ -130,7 +130,7 @@ export default function EmailInboxMongo() {
                             if (!confirm("Are you sure you want to DELETE ALL emails? This cannot be undone.")) return;
                             try {
                                 setLoading(true);
-                                await fetch('http://127.0.0.1:8000/api/emails/all', { method: 'DELETE' });
+                                await fetch('https://agglomeration-intellideskai.onrender.com/api/emails/all', { method: 'DELETE' });
                                 await fetchEmails();
                             } catch (e) {
                                 console.error(e);
@@ -367,3 +367,4 @@ export default function EmailInboxMongo() {
         </div >
     );
 }
+
