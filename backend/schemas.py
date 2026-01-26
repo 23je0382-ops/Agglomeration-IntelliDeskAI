@@ -77,10 +77,13 @@ class KnowledgeDocumentResponse(BaseModel):
         from_attributes = True
 
 class KnowledgeSearchResult(BaseModel):
-    document_id: int
-    filename: str
+    document_id: Optional[int] = None
+    filename: Optional[str] = "System Knowledge"
     content: str
     relevance_score: float
+
+class KnowledgeSearchRequest(BaseModel):
+    query: str
 
 class KnowledgeSearchResponse(BaseModel):
     query: str

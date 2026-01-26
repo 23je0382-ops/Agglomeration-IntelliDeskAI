@@ -12,37 +12,45 @@ import {
     Database,
 } from 'lucide-react';
 import { knowledgeAPI } from '../services/api';
+import pdfIcon from '../assets/pdf_icon.png';
 
 function DocumentCard({ document, onDelete }) {
     const uploadedAt = new Date(document.uploaded_at).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
+        month: 'short', day: 'numeric', year: 'numeric'
     });
 
-    const fileIcon = document.file_type === 'pdf' ? '📄' : '📝';
+    const isPdf = document.file_type === 'pdf';
 
     return (
-        <div className="neon-card group">
-            <div className="flex items-start gap-4">
-                <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                    style={{
-                        background: 'rgba(0,255,255,0.1)',
-                        border: '1px solid rgba(0,255,255,0.2)',
-                    }}
-                >
-                    {fileIcon}
+        <div className="neon-card p-4 hover:border-[var(--neon-cyan)]/50 transition-all group/card">
+            <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center relative overflow-hidden ${!isPdf ? 'bg-[#007acc]' : ''}`}>
+                    {isPdf ? (
+                        <img src={pdfIcon} alt="PDF" className="w-full h-full object-contain p-1" />
+                    ) : (
+                        <div className="flex flex-col items-center">
+                            <FileText className="w-5 h-5 text-white/90" />
+                            <span className="text-[8px] font-bold text-white mt-0.5 tracking-tighter">TXT</span>
+                        </div>
+                    )}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-bold truncate group-hover:text-[var(--neon-cyan)] transition-colors">{document.original_filename}</h3>
-                    <p className="text-sm text-[var(--text-muted)] mt-1">
-                        <span className="text-[var(--neon-pink)]">{document.chunk_count}</span> chunks • {uploadedAt}
-                    </p>
+                    <h3 className="font-bold text-sm text-[var(--text-primary)] truncate">
+                        {document.original_filename}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] uppercase font-bold text-[var(--text-muted)]">
+                            {document.file_type}
+                        </span>
+                        <span className="text-[10px] text-[var(--text-muted)]">•</span>
+                        <span className="text-[10px] text-[var(--text-muted)]">
+                            {uploadedAt}
+                        </span>
+                    </div>
                 </div>
                 <button
                     onClick={() => onDelete(document.id)}
-                    className="p-2 text-[var(--text-muted)] hover:text-[var(--neon-red)] hover:bg-[rgba(255,0,102,0.1)] rounded-lg border border-transparent hover:border-[var(--neon-red)] transition-all"
+                    className="p-1.5 text-[var(--text-muted)] hover:text-red-600 hover:bg-red-50 rounded transition-all"
                 >
                     <Trash2 className="w-4 h-4" />
                 </button>
@@ -53,14 +61,19 @@ function DocumentCard({ document, onDelete }) {
 
 function SearchResult({ result }) {
     return (
-        <div className="bg-[var(--bg-tertiary)]/50 rounded-xl p-4 border border-[rgba(255,0,255,0.1)] hover:border-[rgba(255,0,255,0.3)] transition-colors">
+        <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--neon-purple)]/30 transition-colors">
             <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-[var(--neon-pink)]">{result.filename}</span>
-                <span className="text-xs text-[var(--neon-cyan)] bg-[rgba(0,255,255,0.1)] px-2 py-1 rounded-full">
-                    {Math.round(result.relevance_score * 100)}% match
+                <div className="flex items-center gap-2">
+                    <FileText className="w-3.5 h-3.5 text-[var(--neon-purple)]" />
+                    <span className="text-xs font-bold text-[var(--text-primary)]">{result.filename}</span>
+                </div>
+                <span className="text-[10px] font-bold text-[var(--neon-cyan)]">
+                    {Math.round(result.relevance_score * 100)}% Match
                 </span>
             </div>
-            <p className="text-sm text-[var(--text-secondary)] line-clamp-3">{result.content}</p>
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-3 italic bg-[var(--bg-tertiary)]/30 p-3 rounded-lg border border-[var(--border-color)]/50">
+                "{result.content}"
+            </p>
         </div>
     );
 }
@@ -72,8 +85,6 @@ export default function KnowledgeBase() {
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState(null);
-    const [searching, setSearching] = useState(false);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -129,54 +140,102 @@ export default function KnowledgeBase() {
         }
     }
 
-    async function handleSearch(e) {
-        e.preventDefault();
-        if (!searchQuery.trim()) return;
-
-        setSearching(true);
-        try {
-            const results = await knowledgeAPI.search(searchQuery);
-            setSearchResults(results);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setSearching(false);
-        }
-    }
+    // Filter documents by filename for real-time overview
+    const filteredDocuments = documents.filter(doc =>
+        doc.original_filename.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
-        <div className="fade-in">
+        <div className="fade-in max-w-6xl mx-auto">
+            {/* Header */}
             <div className="mb-8">
-                <h1 className="text-4xl font-bold font-['Orbitron'] gradient-text">Knowledge Base</h1>
-                <p className="text-[var(--text-muted)] mt-2">
-                    Upload FAQ documents to enhance AI response quality
+                <h1 className="text-3xl font-bold font-['Orbitron'] gradient-text">Knowledge Base</h1>
+                <p className="text-[var(--text-muted)] mt-2 italic">
+                    Train your AI assistant with documentation for better support accuracy.
                 </p>
             </div>
 
-            {/* Error/Success Messages */}
+            {/* Notifications */}
             {error && (
-                <div className="mb-6 bg-[rgba(255,0,102,0.1)] border border-[var(--neon-red)] rounded-xl p-4 flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-[var(--neon-red)] flex-shrink-0" />
-                    <span className="text-[var(--neon-red)]">{error}</span>
-                    <button onClick={() => setError(null)} className="ml-auto text-[var(--neon-red)] hover:opacity-70">
+                <div className="mb-6 p-4 rounded-xl bg-red-500/5 border border-red-500/20 flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                    <span className="text-red-500 text-sm font-medium">{error}</span>
+                    <button onClick={() => setError(null)} className="ml-auto text-red-500/50 hover:text-red-500">
                         <X className="w-4 h-4" />
                     </button>
                 </div>
             )}
 
             {uploadSuccess && (
-                <div className="mb-6 bg-[rgba(0,255,136,0.1)] border border-[var(--neon-green)] rounded-xl p-4 flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-[var(--neon-green)]" />
-                    <span className="text-[var(--neon-green)]">Document uploaded successfully!</span>
+                <div className="mb-6 p-4 rounded-xl bg-green-500/5 border border-green-500/20 flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <span className="text-green-500 text-sm font-medium">Document added successfully!</span>
                 </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Upload & Documents */}
-                <div className="space-y-6">
-                    {/* Upload Area */}
+            {/* Search Section (Top) */}
+            <div className="relative w-full mb-10">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--neon-purple)] z-10" />
+                <input
+                    type="text"
+                    placeholder="Search documents by filename..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="neon-input pl-12 py-4 text-base focus:border-[var(--neon-purple)]"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] z-10"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left: Lists (2 units) */}
+                <div className="lg:col-span-2 space-y-6">
                     <div className="neon-card">
-                        <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-cyan)] mb-4">Upload Document</h2>
+                        <div className="flex items-center justify-between mb-4 pb-2 border-b border-[var(--border-color)]">
+                            <h2 className="text-lg font-bold font-['Orbitron']">Stored Documents</h2>
+                            <span className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded font-mono text-[var(--neon-cyan)]">
+                                {filteredDocuments.length} Files
+                            </span>
+                        </div>
+                        {loading ? (
+                            <div className="py-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-[var(--neon-cyan)]" /></div>
+                        ) : filteredDocuments.length > 0 ? (
+                            <div className="grid grid-cols-1 gap-4 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
+                                {filteredDocuments.map((doc) => (
+                                    <DocumentCard key={doc.id} document={doc} onDelete={handleDelete} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-20 text-center text-[var(--text-muted)]">
+                                {searchQuery ? (
+                                    <>
+                                        <Search className="w-12 h-12 mx-auto opacity-10 mb-4" />
+                                        <p>No documents match "{searchQuery}"</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Database className="w-12 h-12 mx-auto opacity-10 mb-4" />
+                                        <p>Your knowledge base is empty.</p>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Right: Upload Section (1 unit) */}
+                <div className="lg:col-span-1 space-y-6">
+                    <div className="neon-card">
+                        <h2 className="text-lg font-bold font-['Orbitron'] mb-4 flex items-center gap-2">
+                            <Upload className="w-4 h-4 text-[var(--neon-cyan)]" />
+                            New Document
+                        </h2>
                         <label className="block">
                             <input
                                 ref={fileInputRef}
@@ -186,96 +245,24 @@ export default function KnowledgeBase() {
                                 disabled={uploading}
                                 className="hidden"
                             />
-                            <div className="border-2 border-dashed border-[rgba(0,255,255,0.3)] rounded-xl p-10 text-center cursor-pointer hover:border-[var(--neon-cyan)] hover:bg-[rgba(0,255,255,0.05)] transition-all group">
+                            <div className={`
+                                border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all
+                                ${uploading
+                                    ? 'border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/5'
+                                    : 'border-[var(--border-color)] hover:border-[var(--neon-cyan)] hover:bg-[var(--bg-tertiary)]'
+                                }
+                            `}>
                                 {uploading ? (
-                                    <div className="flex flex-col items-center">
-                                        <div className="neon-spinner mb-4"></div>
-                                        <p className="text-[var(--text-muted)]">Processing document...</p>
-                                    </div>
+                                    <Loader2 className="w-8 h-8 text-[var(--neon-cyan)] animate-spin mx-auto" />
                                 ) : (
-                                    <div className="flex flex-col items-center">
-                                        <Upload className="w-12 h-12 text-[var(--neon-cyan)] mb-4 group-hover:scale-110 transition-transform" />
-                                        <p className="font-semibold text-lg">Drop files here or click to upload</p>
-                                        <p className="text-sm text-[var(--text-muted)] mt-2">PDF or TXT files only</p>
-                                    </div>
+                                    <>
+                                        <Upload className="w-8 h-8 text-[var(--text-muted)] opacity-50 mx-auto mb-2" />
+                                        <p className="text-sm font-semibold">Drop or Click</p>
+                                        <p className="text-[10px] text-[var(--text-muted)] mt-1">PDF / TXT only</p>
+                                    </>
                                 )}
                             </div>
                         </label>
-                    </div>
-
-                    {/* Document List */}
-                    <div className="neon-card">
-                        <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-pink)] mb-4">
-                            Documents <span className="text-[var(--neon-cyan)]">({documents.length})</span>
-                        </h2>
-                        {loading ? (
-                            <div className="space-y-3">
-                                {[...Array(3)].map((_, i) => (
-                                    <div key={i} className="bg-[var(--bg-tertiary)] rounded-xl h-20 flex items-center justify-center">
-                                        <div className="neon-spinner"></div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : documents.length > 0 ? (
-                            <div className="space-y-3 max-h-96 overflow-y-auto">
-                                {documents.map((doc) => (
-                                    <DocumentCard key={doc.id} document={doc} onDelete={handleDelete} />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-12">
-                                <Database className="w-12 h-12 mx-auto text-[var(--neon-pink)] opacity-30 mb-4" />
-                                <p className="text-[var(--text-muted)]">No documents uploaded yet</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Search */}
-                <div className="space-y-6">
-                    <div className="neon-card">
-                        <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-purple)] mb-4">Search Knowledge Base</h2>
-                        <form onSubmit={handleSearch} className="flex gap-3">
-                            <div className="flex-1 relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--neon-purple)]" />
-                                <input
-                                    type="text"
-                                    placeholder="Search documents..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="neon-input pl-12"
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={searching || !searchQuery.trim()}
-                                className="btn-gradient px-6 disabled:opacity-50"
-                            >
-                                {searching ? <div className="neon-spinner w-5 h-5 !border-2"></div> : 'Search'}
-                            </button>
-                        </form>
-
-                        {/* Search Results */}
-                        {searchResults && (
-                            <div className="mt-6">
-                                <div className="h-[1px] bg-gradient-to-r from-transparent via-[var(--neon-purple)] to-transparent mb-4"></div>
-                                <h3 className="text-sm font-semibold text-[var(--text-muted)] mb-4">
-                                    <span className="text-[var(--neon-cyan)]">{searchResults.results.length}</span> results for "<span className="text-[var(--neon-pink)]">{searchResults.query}</span>"
-                                </h3>
-                                {searchResults.results.length > 0 ? (
-                                    <div className="space-y-3 max-h-96 overflow-y-auto">
-                                        {searchResults.results.map((result, i) => (
-                                            <SearchResult key={i} result={result} />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <Zap className="w-12 h-12 mx-auto text-[var(--neon-purple)] opacity-30 mb-4" />
-                                        <p className="text-[var(--text-muted)]">No matches found</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

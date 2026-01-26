@@ -16,19 +16,40 @@ import SalesOutreach from './pages/SalesOutreach';
 import Organizations from './pages/Organizations';
 import OrganizationDetail from './pages/OrganizationDetail';
 import Login from './pages/Login';
+import Profile from './pages/Profile';
+import UserManagement from './pages/UserManagement';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)]">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--neon-cyan)]"></div>
-    </div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--neon-cyan)]"></div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
+
+  return <Layout>{children}</Layout>;
+}
+
+function AdminRoute({ children }) {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--neon-cyan)]"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (!isAdmin) return <Navigate to="/" />;
 
   return <Layout>{children}</Layout>;
 }
@@ -53,6 +74,8 @@ export default function App() {
             <Route path="/organizations/:id" element={<ProtectedRoute><OrganizationDetail /></ProtectedRoute>} />
             <Route path="/knowledge" element={<ProtectedRoute><KnowledgeBase /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>

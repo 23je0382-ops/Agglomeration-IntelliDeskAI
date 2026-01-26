@@ -82,7 +82,7 @@ export const knowledgeAPI = {
 
     search: (query) => fetchAPI('/knowledge/search', {
         method: 'POST',
-        body: JSON.stringify(query),
+        body: JSON.stringify({ query }),
     }),
 
     delete: (id) => fetchAPI(`/knowledge/${id}`, {

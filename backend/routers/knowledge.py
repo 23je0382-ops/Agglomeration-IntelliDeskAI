@@ -142,23 +142,25 @@ def delete_document(document_id: int):
         
         return {"message": "Document deleted successfully"}
 
+from schemas import KnowledgeDocumentResponse, KnowledgeSearchResponse, KnowledgeSearchResult, KnowledgeSearchRequest
+
 @router.post("/search", response_model=KnowledgeSearchResponse)
-def search_knowledge_base(query: str):
+def search_knowledge_base(request: KnowledgeSearchRequest):
     """Search the knowledge base"""
     rag_service = get_rag_service()
     
-    results = rag_service.search(query, top_k=10)
+    results = rag_service.search(request.query, top_k=10)
     
     search_results = []
     for content, score, metadata in results:
         search_results.append(KnowledgeSearchResult(
-            document_id=metadata["document_id"],
-            filename=metadata["filename"],
+            document_id=metadata.get("document_id"),
+            filename=metadata.get("filename", "System Knowledge"),
             content=content,
             relevance_score=score
         ))
     
-    return KnowledgeSearchResponse(query=query, results=search_results)
+    return KnowledgeSearchResponse(query=request.query, results=search_results)
 
 @router.get("/stats/index")
 def get_index_stats():

@@ -33,6 +33,21 @@ export function AuthProvider({ children }) {
         }
     }, [token]);
 
+    const refreshUser = async () => {
+        if (!token) return;
+        try {
+            const res = await fetch('http://127.0.0.1:8000/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const userData = await res.json();
+                setUser(userData);
+            }
+        } catch (err) {
+            console.error("Failed to refresh user:", err);
+        }
+    };
+
     const login = async (email, password) => {
         try {
             const res = await fetch('http://127.0.0.1:8000/api/auth/login', {
@@ -86,7 +101,17 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout, loading, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{
+            user,
+            token,
+            login,
+            register,
+            logout,
+            refreshUser,
+            loading,
+            isAuthenticated: !!user,
+            isAdmin: user?.role?.trim().toLowerCase() === 'admin'
+        }}>
             {children}
         </AuthContext.Provider>
     );

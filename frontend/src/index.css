@@ -39,7 +39,7 @@
     --neon-orange: #ea580c;
     /* Orange */
 
-    --sidebar-width: 280px;
+    --sidebar-width: 240px;
 }
 
 body {
@@ -118,6 +118,35 @@ h6 {
     border-color: #cbd5e1;
     /* Removed glow shadow */
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 1.5rem;
+}
+
+.blueprint-grid {
+    background-size: 30px 30px;
+    background-image:
+        linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+.blueprint-accent {
+    position: relative;
+}
+
+.blueprint-accent::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid var(--neon-cyan);
+    border-left: 2px solid var(--neon-cyan);
 }
 
 /* BUTTONS */
