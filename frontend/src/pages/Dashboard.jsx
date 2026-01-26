@@ -15,15 +15,16 @@ import { analyticsAPI, ticketsAPI } from '../services/api';
 function StatCard({ icon: Icon, label, value, trend, glowColor, borderColor }) {
     return (
         <div className={`neon-card group`} style={{ '--card-glow': glowColor }}>
-            {/* Animated top border */}
-            <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[${borderColor}] to-transparent opacity-0 group-hover:opacity-100 transition-opacity`}></div>
-
             <div className="flex items-start justify-between">
-                <div>
+                <div
+                    className="flex flex-col gap-2"
+                >
                     <p className="text-[var(--text-muted)] text-sm font-semibold uppercase tracking-wider">{label}</p>
-                    <p className="text-4xl font-bold mt-3 font-['Orbitron']" style={{ color: borderColor, textShadow: `0 0 20px ${borderColor}40` }}>{value}</p>
+                    <p className="text-4xl font-bold mt-1 font-['Orbitron']" style={{
+                        color: borderColor,
+                    }}>{value}</p>
                     {trend && (
-                        <p className={`text-sm mt-3 flex items-center gap-1 ${trend > 0 ? 'text-[var(--neon-green)]' : 'text-[var(--neon-red)]'}`}>
+                        <p className={`text-sm mt-1 flex items-center gap-1 ${trend > 0 ? 'text-[var(--neon-green)]' : 'text-[var(--neon-red)]'}`}>
                             <TrendingUp className={`w-4 h-4 ${trend < 0 ? 'rotate-180' : ''}`} />
                             {Math.abs(trend)}% from last week
                         </p>
@@ -32,12 +33,11 @@ function StatCard({ icon: Icon, label, value, trend, glowColor, borderColor }) {
                 <div
                     className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300`}
                     style={{
-                        background: `${borderColor}20`,
-                        border: `1px solid ${borderColor}40`,
-                        boxShadow: `0 0 20px ${borderColor}30`
+                        background: borderColor.startsWith('var') ? `color-mix(in srgb, ${borderColor} 10%, transparent)` : `${borderColor}10`,
+                        border: `1px solid ${borderColor.startsWith('var') ? `color-mix(in srgb, ${borderColor} 30%, transparent)` : `${borderColor}30`}`,
                     }}
                 >
-                    <Icon className="w-7 h-7" style={{ color: borderColor, filter: `drop-shadow(0 0 8px ${borderColor})` }} />
+                    <Icon className="w-7 h-7" style={{ color: borderColor }} />
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@ function RecentTicket({ ticket }) {
                 transition-all duration-300 group"
         >
             <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--neon-cyan)] transition-colors">{ticket.title}</p>
+                <p className="font-semibold text-[var(--text-primary)] truncate group-hover:text-blue-600 transition-colors">{ticket.title}</p>
                 <div className="flex items-center gap-2 mt-2">
                     <span className={`badge type-${(ticket.type || 'general').toLowerCase().replace(/[^a-z0-9]/g, '-')}`}>
                         {ticket.type}
@@ -62,16 +62,16 @@ function RecentTicket({ ticket }) {
                         {ticket.priority}
                     </span>
                     {ticket.confidence_score && (
-                        <span className={`badge border ${ticket.confidence_score > 0.8 ? 'border-[var(--neon-green)] text-[var(--neon-green)]' :
-                            ticket.confidence_score > 0.5 ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)]' :
-                                'border-[var(--neon-red)] text-[var(--neon-red)]'
+                        <span className={`badge border ${ticket.confidence_score > 0.8 ? 'border-green-600 text-green-700' :
+                            ticket.confidence_score > 0.5 ? 'border-orange-500 text-orange-700' :
+                                'border-red-500 text-red-700'
                             }`}>
                             {Math.round(ticket.confidence_score * 100)}%
                         </span>
                     )}
                 </div>
             </div>
-            <ArrowRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--neon-cyan)] group-hover:translate-x-1 transition-all" />
+            <ArrowRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
         </Link>
     );
 }
@@ -122,34 +122,32 @@ export default function Dashboard() {
                     <h1 className="text-4xl font-bold font-['Orbitron'] gradient-text">Dashboard</h1>
                     <p className="text-[var(--text-muted)] mt-2">Welcome back! Here's your helpdesk overview.</p>
                 </div>
-
             </div>
-
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard
                     icon={Ticket}
                     label="Total Tickets"
                     value={analytics?.total_tickets || 0}
-                    borderColor="var(--neon-cyan)"
+                    borderColor="var(--text-primary)"
                 />
                 <StatCard
                     icon={AlertTriangle}
                     label="Open Tickets"
                     value={analytics?.open_tickets || 0}
-                    borderColor="var(--neon-yellow)"
+                    borderColor="#ea580c"
                 />
                 <StatCard
                     icon={CheckCircle}
                     label="Resolved"
                     value={analytics?.resolved_tickets || 0}
-                    borderColor="var(--neon-green)"
+                    borderColor="#15803d"
                 />
                 <StatCard
                     icon={Clock}
                     label="Avg. Resolution"
                     value={analytics?.avg_resolution_time_hours ? `${Math.round(analytics.avg_resolution_time_hours * 60)}m` : 'N/A'}
-                    borderColor="var(--neon-pink)"
+                    borderColor="#2563eb"
                 />
             </div>
 
@@ -158,8 +156,8 @@ export default function Dashboard() {
                 {/* Recent Tickets */}
                 <div className="neon-card">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-cyan)]">Recent Tickets</h2>
-                        <Link to="/tickets" className="text-[var(--neon-pink)] hover:text-[var(--neon-cyan)] text-sm font-semibold flex items-center gap-1 transition-colors group">
+                        <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--text-primary)]">Recent Tickets</h2>
+                        <Link to="/tickets" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm font-semibold flex items-center gap-1 transition-colors group">
                             View all <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
@@ -170,9 +168,9 @@ export default function Dashboard() {
                             ))
                         ) : (
                             <div className="text-center py-12">
-                                <Zap className="w-12 h-12 mx-auto text-[var(--neon-cyan)] opacity-30 mb-4" />
+                                <Zap className="w-12 h-12 mx-auto text-[var(--text-muted)] opacity-30 mb-4" />
                                 <p className="text-[var(--text-muted)]">No tickets yet</p>
-                                <Link to="/create" className="text-[var(--neon-cyan)] text-sm hover:underline mt-2 inline-block">Create your first ticket</Link>
+                                <Link to="/create" className="text-blue-600 text-sm hover:underline mt-2 inline-block">Create your first ticket</Link>
                             </div>
                         )}
                     </div>
@@ -180,7 +178,7 @@ export default function Dashboard() {
 
                 {/* Category Distribution */}
                 <div className="neon-card">
-                    <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-pink)] mb-6">Tickets by Category</h2>
+                    <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--text-primary)] mb-6">Tickets by Category</h2>
                     <div className="space-y-5">
                         {analytics?.tickets_by_category?.length > 0 ? (
                             analytics.tickets_by_category.map(({ category, count }) => {
@@ -199,8 +197,7 @@ export default function Dashboard() {
                                                 className="h-full rounded-full transition-all duration-700 ease-out"
                                                 style={{
                                                     width: `${percentage}%`,
-                                                    background: 'linear-gradient(90deg, var(--neon-cyan), var(--neon-pink))',
-                                                    boxShadow: '0 0 10px var(--neon-cyan)'
+                                                    background: '#2563eb',
                                                 }}
                                             />
                                         </div>
@@ -209,7 +206,7 @@ export default function Dashboard() {
                             })
                         ) : (
                             <div className="text-center py-12">
-                                <Zap className="w-12 h-12 mx-auto text-[var(--neon-pink)] opacity-30 mb-4" />
+                                <Zap className="w-12 h-12 mx-auto text-[var(--text-muted)] opacity-30 mb-4" />
                                 <p className="text-[var(--text-muted)]">No data available</p>
                             </div>
                         )}

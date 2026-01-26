@@ -4,16 +4,17 @@ import Sidebar from './Sidebar';
 
 export default function Layout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] lg:flex">
             {/* Mobile Header */}
             <div className="lg:hidden p-4 border-b border-[rgba(0,255,255,0.1)] bg-[var(--bg-secondary)] flex items-center justify-between sticky top-0 z-40 backdrop-blur-xl">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--neon-cyan)] to-[var(--neon-pink)] flex items-center justify-center shadow-[0_0_20px_rgba(0,255,255,0.4)]">
-                        <Zap className="w-5 h-5 text-black" />
+                    <div>
+                        <h1 className="font-bold text-xl font-['Orbitron'] text-[var(--text-primary)] tracking-wide">IntelliDesk</h1>
+                        <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-semibold pl-0.5">AI Helpdesk</p>
                     </div>
-                    <h1 className="font-bold text-lg gradient-text font-['Orbitron']">IntelliDesk</h1>
                 </div>
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -27,7 +28,12 @@ export default function Layout({ children }) {
                 </button>
             </div>
 
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                isCollapsed={isCollapsed}
+                toggleCollapse={() => setIsCollapsed(!isCollapsed)}
+            />
 
             {/* Overlay for mobile */}
             {isSidebarOpen && (

@@ -166,7 +166,7 @@ export default function KnowledgeBase() {
 
             {uploadSuccess && (
                 <div className="mb-6 bg-[rgba(0,255,136,0.1)] border border-[var(--neon-green)] rounded-xl p-4 flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-[var(--neon-green)]" style={{ filter: 'drop-shadow(0 0 5px var(--neon-green))' }} />
+                    <CheckCircle className="w-5 h-5 text-[var(--neon-green)]" />
                     <span className="text-[var(--neon-green)]">Document uploaded successfully!</span>
                 </div>
             )}
@@ -194,7 +194,7 @@ export default function KnowledgeBase() {
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center">
-                                        <Upload className="w-12 h-12 text-[var(--neon-cyan)] mb-4 group-hover:scale-110 transition-transform" style={{ filter: 'drop-shadow(0 0 10px var(--neon-cyan))' }} />
+                                        <Upload className="w-12 h-12 text-[var(--neon-cyan)] mb-4 group-hover:scale-110 transition-transform" />
                                         <p className="font-semibold text-lg">Drop files here or click to upload</p>
                                         <p className="text-sm text-[var(--text-muted)] mt-2">PDF or TXT files only</p>
                                     </div>

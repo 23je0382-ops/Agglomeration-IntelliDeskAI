@@ -15,14 +15,31 @@ import { TrendingUp, Clock, CheckCircle, AlertTriangle, Zap } from 'lucide-react
 import { analyticsAPI } from '../services/api';
 
 const COLORS = {
-    technical: '#7c3aed', // Purple
-    billing: '#059669',   // Green
-    account: '#db2777',   // Pink
-    general: '#2563eb',   // Blue
-    critical: '#dc2626',  // Red
-    high: '#ea580c',      // Orange
-    medium: '#ca8a04',    // Yellow/Gold
-    low: '#10b981',       // Green
+    // Categories (Normalized to match badge classes in TicketQueue)
+    'technical-support': '#7c3aed', // Purple (neon-cyan)
+    'billing-invoice': '#059669',  // Green (neon-green)
+    'access-request': '#db2777',   // Pink (neon-pink)
+    'feature-request': '#ca8a04',  // Yellow (neon-yellow)
+    'hardware-infrastructure': '#ea580c', // Orange (neon-orange)
+    'how-to-documentation': '#6d28d9', // Violet (neon-purple)
+    'data-request': '#2563eb',     // Blue (neon-blue)
+    'complaint-escalation': '#dc2626', // Red (neon-red)
+    'general-inquiry': '#2563eb',  // Blue (neon-blue)
+    'unknown': '#94a3b8',          // Muted
+
+    // Priorities
+    'critical': '#dc2626',         // Red (neon-red)
+    'high': '#ea580c',             // Orange (neon-orange)
+    'medium': '#ca8a04',           // Yellow (neon-yellow)
+    'low': '#059669',              // Green (neon-green)
+};
+
+// Helper to normalize category/priority names for color lookup
+// Matches logic in TicketQueue.jsx: (ticket.type || 'general').toLowerCase().replace(/[^a-z0-9]/g, '-')
+const normalizeKey = (key) => {
+    if (!key) return 'unknown';
+    const normalized = key.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    return normalized === 'general' ? 'general-inquiry' : normalized;
 };
 
 function StatCard({ icon: Icon, label, value, subtext, borderColor }) {
@@ -37,8 +54,8 @@ function StatCard({ icon: Icon, label, value, subtext, borderColor }) {
                 <div
                     className="w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300"
                     style={{
-                        background: `${borderColor}15`, // Very light tint
-                        border: `1px solid ${borderColor}30`,
+                        backgroundColor: borderColor.startsWith('var') ? `color-mix(in srgb, ${borderColor} 15%, transparent)` : `${borderColor}15`,
+                        border: `1px solid ${borderColor.startsWith('var') ? `color-mix(in srgb, ${borderColor} 30%, transparent)` : `${borderColor}30`}`,
                     }}
                 >
                     <Icon className="w-7 h-7" style={{ color: borderColor }} />
@@ -84,14 +101,16 @@ export default function Analytics() {
     const categoryData = analytics?.tickets_by_category?.map((item) => ({
         name: item.category,
         value: item.count,
-        fill: COLORS[item.category] || '#00ffff',
     })) || [];
 
-    const priorityData = analytics?.tickets_by_priority?.map((item) => ({
-        name: item.category,
-        value: item.count,
-        fill: COLORS[item.category] || '#00ffff',
-    })) || [];
+    const priorityData = analytics?.tickets_by_priority?.map((item) => {
+        const key = normalizeKey(item.category);
+        return {
+            name: item.category,
+            value: item.count,
+            fill: COLORS[key] || COLORS.unknown,
+        };
+    }) || [];
 
     const resolutionRate = analytics?.total_tickets
         ? Math.round((analytics.resolved_tickets / analytics.total_tickets) * 100)
@@ -110,56 +129,54 @@ export default function Analytics() {
                     icon={TrendingUp}
                     label="Total Tickets"
                     value={analytics?.total_tickets || 0}
-                    borderColor="var(--neon-cyan)"
+                    borderColor="var(--text-primary)"
                 />
                 <StatCard
                     icon={AlertTriangle}
                     label="Open Tickets"
                     value={analytics?.open_tickets || 0}
-                    borderColor="var(--neon-yellow)"
+                    borderColor="#ea580c"
                 />
                 <StatCard
                     icon={CheckCircle}
                     label="Resolution Rate"
                     value={`${resolutionRate}%`}
                     subtext={`${analytics?.resolved_tickets || 0} resolved`}
-                    borderColor="var(--neon-green)"
+                    borderColor="#15803d"
                 />
                 <StatCard
                     icon={Clock}
                     label="Avg. Resolution"
                     value={analytics?.avg_resolution_time_hours ? `${analytics.avg_resolution_time_hours}h` : 'N/A'}
-                    borderColor="var(--neon-pink)"
+                    borderColor="#2563eb"
                 />
             </div>
 
-            {/* Cyber line */}
-            <div className="h-[1px] bg-gradient-to-r from-transparent via-[var(--neon-cyan)] to-transparent mb-8"></div>
+            {/* Separator */}
+            <div className="h-[1px] bg-[var(--border-color)] mb-8"></div>
 
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 {/* Tickets by Category */}
                 <div className="neon-card">
-                    <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-cyan)] mb-6">Tickets by Category</h2>
+                    <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--text-primary)] mb-6">Tickets by Category</h2>
                     {categoryData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={categoryData} layout="vertical">
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,255,255,0.1)" />
-                                <XAxis type="number" stroke="var(--text-muted)" />
-                                <YAxis type="category" dataKey="name" stroke="var(--neon-cyan)" width={80} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" opacity={0.3} />
+                                <XAxis type="number" stroke="var(--text-muted)" fontSize={12} />
+                                <YAxis type="category" dataKey="name" stroke="var(--text-secondary)" width={100} fontSize={10} />
                                 <Tooltip
+                                    cursor={{ fill: 'var(--bg-tertiary)', opacity: 0.4 }}
                                     contentStyle={{
-                                        backgroundColor: 'var(--bg-secondary)',
-                                        border: '1px solid var(--neon-cyan)',
+                                        backgroundColor: 'var(--bg-card)',
+                                        border: '1px solid var(--border-color)',
                                         borderRadius: '12px',
-                                        boxShadow: '0 0 20px rgba(0,255,255,0.2)',
+                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                        color: 'var(--text-primary)'
                                     }}
                                 />
-                                <Bar dataKey="value" radius={[0, 8, 8, 0]}>
-                                    {categoryData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                                    ))}
-                                </Bar>
+                                <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#7c3aed" />
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
@@ -172,7 +189,7 @@ export default function Analytics() {
 
                 {/* Tickets by Priority */}
                 <div className="neon-card">
-                    <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-pink)] mb-6">Tickets by Priority</h2>
+                    <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--text-primary)] mb-6">Tickets by Priority</h2>
                     {priorityData.length > 0 ? (
                         <div className="flex items-center justify-center">
                             <ResponsiveContainer width="100%" height={300}>
@@ -195,10 +212,11 @@ export default function Analytics() {
                                     </Pie>
                                     <Tooltip
                                         contentStyle={{
-                                            backgroundColor: 'var(--bg-secondary)',
-                                            border: '1px solid var(--neon-pink)',
+                                            backgroundColor: 'var(--bg-card)',
+                                            border: '1px solid var(--border-color)',
                                             borderRadius: '12px',
-                                            boxShadow: '0 0 20px rgba(255,0,255,0.2)',
+                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                            color: 'var(--text-primary)'
                                         }}
                                     />
                                 </PieChart>
@@ -215,21 +233,20 @@ export default function Analytics() {
 
             {/* Top Issues */}
             <div className="neon-card">
-                <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-purple)] mb-6">Top Issues</h2>
+                <h2 className="text-xl font-bold font-['Orbitron'] text-[var(--text-primary)] mb-6">Top Issues</h2>
                 {analytics?.top_issues?.length > 0 ? (
                     <div className="space-y-3">
                         {analytics.top_issues.map((issue, index) => (
                             <div
                                 key={index}
-                                className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-tertiary)]/50 border border-[rgba(191,0,255,0.1)] hover:border-[rgba(191,0,255,0.3)] transition-colors"
+                                className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-tertiary)]/50 border border-[var(--border-color)] hover:border-blue-500 transition-colors"
                             >
                                 <div
                                     className="w-10 h-10 rounded-full flex items-center justify-center font-bold font-['Orbitron']"
                                     style={{
-                                        background: 'rgba(191,0,255,0.2)',
-                                        border: '1px solid rgba(191,0,255,0.4)',
-                                        color: 'var(--neon-purple)',
-                                        textShadow: '0 0 10px var(--neon-purple)'
+                                        background: 'rgba(37, 99, 235, 0.1)',
+                                        border: '1px solid #2563eb',
+                                        color: '#2563eb',
                                     }}
                                 >
                                     {index + 1}
@@ -240,7 +257,7 @@ export default function Analytics() {
                     </div>
                 ) : (
                     <div className="text-center py-12">
-                        <Zap className="w-12 h-12 mx-auto text-[var(--neon-purple)] opacity-30 mb-4" />
+                        <Zap className="w-12 h-12 mx-auto text-[var(--text-muted)] opacity-30 mb-4" />
                         <p className="text-[var(--text-muted)]">No issues tracked yet</p>
                     </div>
                 )}

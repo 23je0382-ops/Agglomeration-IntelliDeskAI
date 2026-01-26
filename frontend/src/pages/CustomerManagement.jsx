@@ -56,8 +56,8 @@ export default function CustomerManagement() {
                 <button
                     onClick={() => setActiveTab('customers')}
                     className={`pb-2 px-4 font-medium transition-colors relative ${activeTab === 'customers'
-                            ? 'text-[var(--neon-cyan)]'
-                            : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                        ? 'text-[var(--neon-cyan)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                         }`}
                 >
                     <div className="flex items-center gap-2">
@@ -65,14 +65,14 @@ export default function CustomerManagement() {
                         Customers
                     </div>
                     {activeTab === 'customers' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--neon-cyan)] shadow-[0_0_10px_var(--neon-cyan)]" />
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--neon-cyan)]" />
                     )}
                 </button>
                 <button
                     onClick={() => setActiveTab('accounts')}
                     className={`pb-2 px-4 font-medium transition-colors relative ${activeTab === 'accounts'
-                            ? 'text-[var(--neon-purple)]'
-                            : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                        ? 'text-[var(--neon-purple)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                         }`}
                 >
                     <div className="flex items-center gap-2">
@@ -80,14 +80,14 @@ export default function CustomerManagement() {
                         Accounts
                     </div>
                     {activeTab === 'accounts' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--neon-purple)] shadow-[0_0_10px_var(--neon-purple)]" />
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--neon-purple)]" />
                     )}
                 </button>
             </div>
 
             {/* Search */}
-            <div className="relative mb-6 max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
+            <div className="relative mb-6">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--neon-purple)]" />
                 <input
                     type="text"
                     placeholder={`Search ${activeTab}...`}
@@ -151,8 +151,8 @@ export default function CustomerManagement() {
                                             <Building2 size={24} />
                                         </div>
                                         <span className={`text-xs px-2 py-1 rounded-full border ${account.tier === 'enterprise' ? 'border-[var(--neon-green)] text-[var(--neon-green)]' :
-                                                account.tier === 'smb' ? 'border-[var(--neon-cyan)] text-[var(--neon-cyan)]' :
-                                                    'border-[var(--text-muted)] text-[var(--text-muted)]'
+                                            account.tier === 'smb' ? 'border-[var(--neon-cyan)] text-[var(--neon-cyan)]' :
+                                                'border-[var(--text-muted)] text-[var(--text-muted)]'
                                             }`}>
                                             {account.tier.toUpperCase()}
                                         </span>

@@ -109,13 +109,15 @@ h6 {
     border-radius: 1rem;
     /* rounded-2xl equivalent */
     padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    /* Removed glow shadow */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
 }
 
 .neon-card:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border-color: #cbd5e1;
+    /* Removed glow shadow */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* BUTTONS */
@@ -124,14 +126,15 @@ h6 {
     color: white;
     border: none;
     font-weight: 600;
-    transition: transform 0.1s, box-shadow 0.2s;
+    transition: transform 0.1s;
+    /* Removed box-shadow transition */
     cursor: pointer;
 }
 
 .btn-gradient:hover {
     opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    /* Removed glow shadow */
 }
 
 .btn-gradient:active {
@@ -142,7 +145,6 @@ h6 {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
 }
 
 .btn-neon {
@@ -168,13 +170,30 @@ h6 {
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     width: 100%;
-    transition: border-color 0.2s, ring 0.2s;
+    transition: border-color 0.2s;
+    /* Removed ring transition */
 }
 
 .neon-input:focus {
     outline: none;
-    border-color: var(--neon-blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    /* Removed glow shadow */
+}
+
+/* Fix for search icon overlap */
+.neon-input.pl-12 {
+    padding-left: 3rem !important;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 9999px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 /* STATUS BADGES */
@@ -200,45 +219,97 @@ h6 {
 
 /* TYPE BADGES */
 .type-technical-support {
-    background: #f3e8ff;
-    color: #7e22ce;
+    background: color-mix(in srgb, var(--neon-cyan) 10%, transparent);
+    color: var(--neon-cyan);
+    border: 1px solid color-mix(in srgb, var(--neon-cyan) 20%, transparent);
 }
 
 .type-billing-invoice {
-    background: #ecfdf5;
-    color: #047857;
+    background: color-mix(in srgb, var(--neon-green) 10%, transparent);
+    color: var(--neon-green);
+    border: 1px solid color-mix(in srgb, var(--neon-green) 20%, transparent);
 }
 
 .type-access-request {
-    background: #fce7f3;
-    color: #be185d;
+    background: color-mix(in srgb, var(--neon-pink) 10%, transparent);
+    color: var(--neon-pink);
+    border: 1px solid color-mix(in srgb, var(--neon-pink) 20%, transparent);
 }
 
 .type-feature-request {
-    background: #fef9c3;
-    color: #a16207;
+    background: color-mix(in srgb, var(--neon-orange) 10%, transparent);
+    color: var(--neon-orange);
+    border: 1px solid color-mix(in srgb, var(--neon-orange) 20%, transparent);
 }
 
-.type-general {
-    background: #eff6ff;
-    color: #1d4ed8;
+.type-general,
+.type-general-inquiry {
+    background: color-mix(in srgb, var(--neon-blue) 10%, transparent);
+    color: var(--neon-blue);
+    border: 1px solid color-mix(in srgb, var(--neon-blue) 20%, transparent);
+}
+
+.type-hardware-infrastructure {
+    background: color-mix(in srgb, var(--neon-purple) 10%, transparent);
+    color: var(--neon-purple);
+    border: 1px solid color-mix(in srgb, var(--neon-purple) 20%, transparent);
+}
+
+.type-how-to-documentation {
+    background: color-mix(in srgb, var(--neon-yellow) 10%, transparent);
+    color: var(--neon-yellow);
+    border: 1px solid color-mix(in srgb, var(--neon-yellow) 20%, transparent);
+}
+
+.type-data-request {
+    background: color-mix(in srgb, var(--neon-cyan) 10%, transparent);
+    color: var(--neon-cyan);
+    border: 1px solid color-mix(in srgb, var(--neon-cyan) 20%, transparent);
+}
+
+.type-complaint-escalation {
+    background: color-mix(in srgb, var(--neon-red) 10%, transparent);
+    color: var(--neon-red);
+    border: 1px solid color-mix(in srgb, var(--neon-red) 20%, transparent);
+}
+
+/* Fallback for any other type */
+.badge[class*="type-"] {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+/* Specific overrides (placed after fallback) */
+[class*="type-technical-support"],
+[class*="type-billing-invoice"],
+[class*="type-access-request"],
+[class*="type-feature-request"],
+[class*="type-general"],
+[class*="type-hardware-infrastructure"],
+[class*="type-how-to-documentation"],
+[class*="type-data-request"],
+[class*="type-complaint-escalation"] {
+    border-style: solid;
 }
 
 /* PRIORITY BADGES */
 .priority-critical {
-    background: #fee2e2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
+    background: color-mix(in srgb, var(--neon-red) 10%, transparent);
+    color: var(--neon-red);
+    border: 1px solid color-mix(in srgb, var(--neon-red) 20%, transparent);
 }
 
 .priority-high {
-    background: #ffedd5;
-    color: #c2410c;
+    background: color-mix(in srgb, var(--neon-orange) 10%, transparent);
+    color: var(--neon-orange);
+    border: 1px solid color-mix(in srgb, var(--neon-orange) 20%, transparent);
 }
 
 .priority-medium {
-    background: #fef9c3;
-    color: #a16207;
+    background: color-mix(in srgb, var(--neon-yellow) 10%, transparent);
+    color: var(--neon-yellow);
+    border: 1px solid color-mix(in srgb, var(--neon-yellow) 20%, transparent);
 }
 
 .priority-low {

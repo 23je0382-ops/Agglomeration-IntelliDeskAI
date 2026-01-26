@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, RefreshCw, Search, Clock, Trash2, Database, X } from 'lucide-react';
+import { Mail, RefreshCw, Search, Clock, Trash2, Database, X, ArrowLeft, Zap, Send } from 'lucide-react';
 
 export default function EmailInboxMongo() {
     const [emails, setEmails] = useState([]);
@@ -7,6 +7,42 @@ export default function EmailInboxMongo() {
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState(null);
     const [selectedEmail, setSelectedEmail] = useState(null);
+    const [replyText, setReplyText] = useState("");
+    const [sendingReply, setSendingReply] = useState(false);
+
+    const sendReply = async () => {
+        if (!replyText.trim() || !selectedEmail) return;
+        setSendingReply(true);
+        try {
+            // Attempt to get a clean email from the "from" field
+            let toEmail = selectedEmail.from;
+            if (toEmail.includes('<')) {
+                toEmail = toEmail.split('<')[1].replace('>', '').trim();
+            }
+
+            const response = await fetch('http://127.0.0.1:8000/api/emails/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    to_email: toEmail,
+                    subject: `Re: ${selectedEmail.subject}`,
+                    body: replyText
+                })
+            });
+
+            if (response.ok) {
+                alert("Reply sent successfully!");
+                setReplyText("");
+            } else {
+                alert("Failed to send reply.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error sending reply.");
+        } finally {
+            setSendingReply(false);
+        }
+    };
 
     const fetchEmails = async () => {
         setLoading(true);
@@ -85,7 +121,6 @@ export default function EmailInboxMongo() {
             {/* Header */}
             <div className="flex justify-between items-center border-b border-[var(--border-color)] pb-4">
                 <h1 className="text-3xl font-bold text-[var(--text-primary)] flex items-center gap-2 font-['Orbitron']">
-                    <Database className="w-8 h-8 text-[var(--neon-cyan)]" />
                     Mongo Inbox <span className="text-[var(--text-muted)] text-xl">({emails.length})</span>
                 </h1>
 
@@ -128,13 +163,13 @@ export default function EmailInboxMongo() {
 
             {/* Search */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--neon-purple)]" />
                 <input
                     type="text"
                     placeholder="Search emails..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded py-3 pl-10 text-[var(--text-primary)] focus:border-[var(--neon-cyan)] outline-none transition-colors shadow-sm"
+                    className="neon-input pl-12"
                 />
             </div>
 
@@ -193,45 +228,137 @@ export default function EmailInboxMongo() {
             {/* Detail Modal */}
             {
                 selectedEmail && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl">
-                            {/* Modal Header */}
-                            <div className="p-6 border-b border-[var(--border-color)] flex justify-between items-start bg-[var(--bg-tertiary)]/50 rounded-t-2xl">
-                                <div>
-                                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-['Orbitron']">{selectedEmail.subject}</h2>
-                                    <div className="flex items-center gap-3 text-[var(--text-secondary)]">
-                                        <span className="font-semibold">{selectedEmail.from}</span>
-                                        <span>•</span>
-                                        <span>{new Date(selectedEmail.date).toLocaleString()}</span>
+                    <div className="fixed inset-0 z-[5000] w-full h-full bg-[var(--bg-primary)] animate-in slide-in-from-right duration-200 flex flex-col">
+
+                        {/* Toolbar (Gmail style) */}
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)] bg-[var(--bg-secondary)] shrink-0">
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setSelectedEmail(null)}
+                                    className="p-2 hover:bg-[var(--bg-tertiary)] rounded-full text-[var(--text-secondary)] transition-colors"
+                                    title="Back"
+                                >
+                                    <ArrowLeft className="w-5 h-5" />
+                                </button>
+                                <div className="h-6 w-[1px] bg-[var(--border-color)]"></div>
+
+                                {/* Logo for consistency */}
+                                <div className="flex items-center gap-3 mr-4">
+                                    <div>
+                                        <h1 className="font-bold text-xl font-['Orbitron'] text-[var(--text-primary)] tracking-wide hidden sm:block">IntelliDesk</h1>
+                                        <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-semibold pl-0.5 hidden sm:block">AI Helpdesk</p>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => setSelectedEmail(null)}
-                                    className="p-2 hover:bg-[var(--border-color)] rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                                >
-                                    <X className="w-6 h-6" />
+
+                                <button className="p-2 hover:bg-[var(--bg-tertiary)] rounded-full text-[var(--text-secondary)] transition-colors" title="Archive">
+                                    <Database className="w-5 h-5" />
                                 </button>
-                            </div>
-
-                            {/* Modal Body */}
-                            <div className="p-8 overflow-y-auto whitespace-pre-wrap text-[var(--text-primary)] leading-relaxed text-lg bg-[var(--bg-card)]">
-                                {selectedEmail.body}
-                            </div>
-
-                            {/* Modal Footer */}
-                            <div className="p-6 border-t border-[var(--border-color)] flex justify-end gap-3 bg-[var(--bg-tertiary)]/30 rounded-b-2xl">
                                 <button
                                     onClick={(e) => deleteEmail(e, selectedEmail.uid)}
-                                    className="px-5 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition-colors font-medium flex items-center gap-2"
+                                    className="p-2 hover:bg-red-50 text-[var(--text-secondary)] hover:text-red-500 rounded-full transition-colors"
+                                    title="Delete"
                                 >
-                                    <Trash2 className="w-4 h-4" /> Delete
+                                    <Trash2 className="w-5 h-5" />
                                 </button>
-                                <button
-                                    onClick={() => setSelectedEmail(null)}
-                                    className="px-5 py-2.5 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl hover:bg-[var(--border-color)] transition-colors font-medium"
-                                >
-                                    Close
+                                <button className="p-2 hover:bg-[var(--bg-tertiary)] rounded-full text-[var(--text-secondary)] transition-colors" title="Mark as unread">
+                                    <Mail className="w-5 h-5" />
                                 </button>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                                <span>{new Date(selectedEmail.date).toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        {/* Email Content Scrollable Area */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar bg-[var(--bg-primary)]">
+                            <div className="w-full min-h-full px-4 py-8 bg-[var(--bg-card)]">
+
+                                {/* Subject & Labels */}
+                                <div className="mb-8">
+                                    <div className="flex items-start justify-between gap-4 mb-4">
+                                        <h1 className="text-2xl md:text-3xl font-normal text-[var(--text-primary)] leading-tight">
+                                            {selectedEmail.subject || "(No Subject)"}
+                                        </h1>
+                                        <div className="flex gap-2 shrink-0">
+                                            <span className="px-2 py-1 bg-[var(--bg-tertiary)] text-xs font-medium rounded text-[var(--text-secondary)]">
+                                                Inbox
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Sender Info Row */}
+                                <div className="flex items-start justify-between gap-4 mb-8">
+                                    <div className="flex items-center gap-4">
+                                        {/* Avatar */}
+                                        <div className="w-10 h-10 rounded-full bg-[var(--neon-cyan)] text-white flex items-center justify-center text-lg font-bold shadow-sm">
+                                            {(selectedEmail.from || "?")[0].toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="font-bold text-[var(--text-primary)] text-base">
+                                                    {selectedEmail.from?.split('<')[0].trim() || "Unknown Sender"}
+                                                </span>
+                                                <span className="text-sm text-[var(--text-muted)] hidden sm:inline">
+                                                    {selectedEmail.from?.includes('<') ? `<${selectedEmail.from.split('<')[1]}` : ''}
+                                                </span>
+                                            </div>
+                                            <div className="text-xs text-[var(--text-muted)] flex items-center gap-1 dropdown-trigger cursor-pointer hover:text-[var(--text-primary)] transition-colors">
+                                                to me
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Quick Actions */}
+                                    <div className="flex gap-2 opacity-50 hover:opacity-100 transition-opacity">
+                                        <button className="p-2 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-secondary)]">
+                                            <RefreshCw className="w-5 h-5 rotate-180" /> {/* Simulate Reply icon */}
+                                        </button>
+                                        <button className="p-2 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-secondary)]">
+                                            <Database className="w-5 h-5" /> {/* Simulate More icon */}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Message Body */}
+                                <div className="text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed text-base font-sans pb-12">
+                                    {selectedEmail.body}
+                                </div>
+
+                                {/* Reply Box */}
+                                <div className="border border-[var(--border-color)] rounded-lg p-4 bg-[var(--bg-card)] shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex gap-4 items-start">
+                                        <div className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center shrink-0">
+                                            <RefreshCw className="w-4 h-4 rotate-180 text-[var(--text-secondary)]" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <textarea
+                                                value={replyText}
+                                                onChange={(e) => setReplyText(e.target.value)}
+                                                placeholder={`Reply to ${selectedEmail.from?.split('<')[0].trim() || "sender"}...`}
+                                                className="w-full bg-transparent border-none outline-none resize-none text-[var(--text-primary)] placeholder-[var(--text-muted)] min-h-[100px]"
+                                            />
+                                            {replyText && (
+                                                <div className="mt-2 flex justify-end animate-in fade-in slide-in-from-bottom-2">
+                                                    <button
+                                                        onClick={sendReply}
+                                                        disabled={sendingReply}
+                                                        className="px-6 py-2 bg-[var(--neon-cyan)] text-black font-bold rounded-lg hover:bg-[var(--neon-blue)] transition-colors flex items-center gap-2 disabled:opacity-50"
+                                                    >
+                                                        {sendingReply ? (
+                                                            <>Sending...</>
+                                                        ) : (
+                                                            <>
+                                                                <Send className="w-4 h-4" /> Send
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>

@@ -135,7 +135,7 @@ export default function TicketQueue() {
                 {/* Search */}
                 <div className="flex-1 min-w-[240px]">
                     <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--neon-cyan)]" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--neon-purple)]" />
                         <input
                             type="text"
                             placeholder="Search tickets..."

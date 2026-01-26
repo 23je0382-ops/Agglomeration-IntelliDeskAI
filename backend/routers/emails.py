@@ -5,9 +5,34 @@ from typing import List
 from pydantic import BaseModel
 from mongodb import get_database
 
+from services.email_service import get_email_service
+
 router = APIRouter(prefix="/emails", tags=["emails"])
 
 class EmailItem(BaseModel):
+    uid: str
+    subject: str = None
+    date: str = None
+    body: str = None
+    from_: str = None # Alias for "from"
+
+class ReplyModel(BaseModel):
+    to_email: str
+    subject: str
+    body: str
+
+@router.post("/send")
+async def send_email_reply(reply: ReplyModel):
+    """Send an email using the configured SMTP service"""
+    service = get_email_service()
+    success = service.send_email(
+        to_email=reply.to_email,
+        subject=reply.subject,
+        body=reply.body
+    )
+    if success:
+        return {"message": "Email sent successfully"}
+    return {"message": "Failed to send email"}, 500
     uid: str
     from_: str = "" # Pydantic alias handling might be needed if field is 'from'
     subject: str
@@ -64,6 +89,31 @@ async def get_emails_mongo():
         print(f"Error reading MongoDB emails: {e}")
         return []
 
+@router.delete("/all")
+async def delete_all_emails():
+    """Delete ALL emails from MongoDB and JSON"""
+    msg = []
+    # Mongo
+    try:
+        db = get_database()
+        res = await db['Email-Store'].delete_many({})
+        msg.append(f"Deleted {res.deleted_count} from MongoDB")
+    except Exception as e:
+        msg.append(f"Mongo Error: {str(e)}")
+        
+    # JSON
+    try:
+        if os.path.exists(JSON_FILE):
+            os.remove(JSON_FILE)
+            msg.append("Deleted JSON file")
+            # Recreate empty
+            with open(JSON_FILE, "w") as f:
+                json.dump([], f)
+    except Exception as e:
+        msg.append(f"JSON Error: {str(e)}")
+        
+    return {"message": "; ".join(msg)}
+
 @router.delete("/{uid}")
 async def delete_email(uid: str):
     """Delete an email by UID from BOTH stores"""
@@ -92,30 +142,5 @@ async def delete_email(uid: str):
         
     if not msg:
         return {"message": "Email not found in stores"}
-        
-    return {"message": "; ".join(msg)}
-
-@router.delete("/all")
-async def delete_all_emails():
-    """Delete ALL emails from MongoDB and JSON"""
-    msg = []
-    # Mongo
-    try:
-        db = get_database()
-        res = await db['Email-Store'].delete_many({})
-        msg.append(f"Deleted {res.deleted_count} from MongoDB")
-    except Exception as e:
-        msg.append(f"Mongo Error: {str(e)}")
-        
-    # JSON
-    try:
-        if os.path.exists(JSON_FILE):
-            os.remove(JSON_FILE)
-            msg.append("Deleted JSON file")
-            # Recreate empty
-            with open(JSON_FILE, "w") as f:
-                json.dump([], f)
-    except Exception as e:
-        msg.append(f"JSON Error: {str(e)}")
         
     return {"message": "; ".join(msg)}

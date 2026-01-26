@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from database import init_db
-from routers import tickets, knowledge, analytics, emails, customers
+from routers import tickets, knowledge, analytics, emails, customers, auth
 from services.email_service import get_email_service
 from services.rag_service import get_rag_service
 
@@ -50,9 +50,9 @@ async def shutdown_event():
     mongo_db.close()
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(tickets.router, prefix="/api")
 app.include_router(knowledge.router, prefix="/api")
-app.include_router(analytics.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(emails.router, prefix="/api")
 app.include_router(customers.router, prefix="/api")

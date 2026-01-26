@@ -57,7 +57,7 @@ export default function Organizations() {
             {/* Filters */}
             <div className="flex flex-wrap gap-4 mb-6">
                 <div className="relative flex-1 min-w-[240px]">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--neon-purple)]" />
                     <input
                         type="text"
                         placeholder="Search organizations..."
@@ -103,8 +103,8 @@ export default function Organizations() {
                                         <span className="text-sm text-[var(--text-muted)] font-mono">{account.domain}</span>
                                     </div>
                                     <div className={`px-2 py-1 rounded text-xs uppercase font-bold border ${account.status === 'lead' ? 'border-[var(--neon-purple)] text-[var(--neon-purple)]' :
-                                            account.status === 'trial' ? 'border-yellow-500 text-yellow-500' :
-                                                'border-[var(--neon-green)] text-[var(--neon-green)]'
+                                        account.status === 'trial' ? 'border-yellow-500 text-yellow-500' :
+                                            'border-[var(--neon-green)] text-[var(--neon-green)]'
                                         }`}>
                                         {account.status}
                                     </div>
