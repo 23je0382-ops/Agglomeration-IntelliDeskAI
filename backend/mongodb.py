@@ -1,9 +1,12 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # MongoDB Configuration
-MONGODB_URL = "mongodb://localhost:27017"
+MONGODB_URL = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 DATABASE_NAME = "IntelliuDeskAI"
 
 class MongoDB:

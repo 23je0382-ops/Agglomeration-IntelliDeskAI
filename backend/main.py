@@ -3,13 +3,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
+
 from database import init_db
 from routers import tickets, knowledge, analytics, emails, customers, auth
 from services.email_service import get_email_service
 from services.rag_service import get_rag_service
-
-# Load environment variables
-load_dotenv()
 
 # Initialize database tables
 init_db()
