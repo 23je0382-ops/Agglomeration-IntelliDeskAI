@@ -2,7 +2,10 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://agglomeration-intellid
 
 // Generic fetch wrapper with error handling
 async function fetchAPI(endpoint, options = {}) {
-    const url = `${API_BASE}${endpoint}`;
+    // Ensure no double slashes if API_BASE ends with / and endpoint starts with /
+    const baseUrl = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE;
+    const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${baseUrl}${path}`;
     const config = {
         headers: {
             'Content-Type': 'application/json',
