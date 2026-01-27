@@ -87,6 +87,11 @@ async def login(user_credentials: UserLogin):
         )
     
     # Verify password
+    print(f"DEBUG: Login Attempt for {user_credentials.email}")
+    print(f"DEBUG: Input Password Length: {len(user_credentials.password)}")
+    print(f"DEBUG: Stored Hash: {user['hashed_password']}")
+    print(f"DEBUG: Stored Hash Length: {len(user['hashed_password'])}")
+    
     if not AuthService.verify_password(user_credentials.password, user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
