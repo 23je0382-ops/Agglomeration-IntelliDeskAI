@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'https://agglomeration-intellideskai.onrender.com/api';
+const API_BASE = 'https://agglomeration-intellideskai.onrender.com/api';
 
 // Generic fetch wrapper with error handling
 // Generic fetch wrapper with error handling
