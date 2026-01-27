@@ -3,6 +3,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 import certifi
 
+from dotenv import load_dotenv
+
 load_dotenv()
 
 # MongoDB Configuration
