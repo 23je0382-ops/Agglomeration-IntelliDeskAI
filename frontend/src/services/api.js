@@ -1,7 +1,8 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'https://agglomeration-intellideskai.onrender.com/api';
 
 // Generic fetch wrapper with error handling
-async function fetchAPI(endpoint, options = {}) {
+// Generic fetch wrapper with error handling
+export async function fetchAPI(endpoint, options = {}) {
     // Ensure no double slashes if API_BASE ends with / and endpoint starts with /
     const baseUrl = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE;
     const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;

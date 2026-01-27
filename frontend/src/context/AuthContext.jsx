@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { fetchAPI } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -10,15 +11,11 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         if (token) {
             // Verify token and get user info
-            fetch('https://agglomeration-intellideskai.onrender.com/api/auth/me', {
+            fetchAPI('/auth/me', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             })
-                .then(res => {
-                    if (res.ok) return res.json();
-                    throw new Error('Invalid token');
-                })
                 .then(userData => {
                     setUser(userData);
                 })
@@ -36,13 +33,10 @@ export function AuthProvider({ children }) {
     const refreshUser = async () => {
         if (!token) return;
         try {
-            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/me', {
+            const userData = await fetchAPI('/auth/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (res.ok) {
-                const userData = await res.json();
-                setUser(userData);
-            }
+            setUser(userData);
         } catch (err) {
             console.error("Failed to refresh user:", err);
         }
@@ -50,18 +44,10 @@ export function AuthProvider({ children }) {
 
     const login = async (email, password) => {
         try {
-            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/login', {
+            const data = await fetchAPI('/auth/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.detail || 'Login failed');
-            }
-
-            const data = await res.json();
             localStorage.setItem('token', data.access_token);
             setToken(data.access_token);
             setUser(data.user);
@@ -73,18 +59,10 @@ export function AuthProvider({ children }) {
 
     const register = async (email, password, name) => {
         try {
-            const res = await fetch('https://agglomeration-intellideskai.onrender.com/api/auth/register', {
+            const data = await fetchAPI('/auth/register', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, name })
             });
-
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.detail || 'Registration failed');
-            }
-
-            const data = await res.json();
             localStorage.setItem('token', data.access_token);
             setToken(data.access_token);
             setUser(data.user);
