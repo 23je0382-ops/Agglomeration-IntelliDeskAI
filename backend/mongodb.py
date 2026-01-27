@@ -1,7 +1,7 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
-from dotenv import load_dotenv
+import certifi
 
 load_dotenv()
 
@@ -14,7 +14,8 @@ class MongoDB:
     db = None
 
     def connect(self):
-        self.client = AsyncIOMotorClient(MONGODB_URL)
+        # Use certifi for proper SSL certificate validation on Render
+        self.client = AsyncIOMotorClient(MONGODB_URL, tlsCAFile=certifi.where())
         self.db = self.client[DATABASE_NAME]
         print(f"Connected to MongoDB: {DATABASE_NAME}")
 
@@ -32,5 +33,5 @@ def get_database():
 
 def get_sync_db():
     """Get Sync Database (for Background Threads)"""
-    client = MongoClient(MONGODB_URL)
+    client = MongoClient(MONGODB_URL, tlsCAFile=certifi.where())
     return client[DATABASE_NAME]
