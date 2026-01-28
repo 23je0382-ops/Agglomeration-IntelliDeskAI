@@ -42,3 +42,4 @@ python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
 bcrypt==4.0.1
 certifi>=2024.2.2
+huggingface_hub>=0.20.0

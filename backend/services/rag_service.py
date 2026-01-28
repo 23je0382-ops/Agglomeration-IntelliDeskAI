@@ -27,7 +27,13 @@ class RAGService:
         self.pc = Pinecone(api_key=api_key)
         self.index_name = "intellidesk"
         self.embedding_dim = 384  # Dimension for all-MiniLM-L6-v2
-        self.hf_api_url = "https://router.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+        
+        # Initialize HF Inference Client
+        if self.hf_token:
+            from huggingface_hub import InferenceClient
+            self.hf_client = InferenceClient(token=self.hf_token)
+        else:
+            self.hf_client = None
         
         # Lazy loaded model
         self.local_model = None
@@ -47,19 +53,20 @@ class RAGService:
         if isinstance(texts, str):
             texts = [texts]
             
-        # 1. Try Hugging Face API if token exists
-        if self.hf_token:
+        # 1. Try Hugging Face API if client exists
+        if self.hf_client:
             try:
-                headers = {"Authorization": f"Bearer {self.hf_token}"}
-                response = requests.post(self.hf_api_url, headers=headers, json={"inputs": texts, "options": {"wait_for_model": True}})
+                # Use the feature_extraction task
+                embeddings = self.hf_client.feature_extraction(
+                    texts, 
+                    model="sentence-transformers/all-MiniLM-L6-v2"
+                )
                 
-                if response.status_code == 200:
-                    embeddings = response.json()
-                    # Validate shape (api sometimes returns different structures on error)
-                    if isinstance(embeddings, list) and len(embeddings) > 0 and isinstance(embeddings[0], list):
-                         return embeddings
-                else:
-                    print(f"HF API Error {response.status_code}: {response.text}")
+                # Ensure it's a list (InferenceClient returns numpy array usually)
+                if hasattr(embeddings, "tolist"):
+                    return embeddings.tolist()
+                return embeddings
+                
             except Exception as e:
                 print(f"HF API Request Failed: {e}")
         
