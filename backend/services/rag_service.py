@@ -27,7 +27,7 @@ class RAGService:
         self.pc = Pinecone(api_key=api_key)
         self.index_name = "intellidesk"
         self.embedding_dim = 384  # Dimension for all-MiniLM-L6-v2
-        self.hf_api_url = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
+        self.hf_api_url = "https://router.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
         
         # Lazy loaded model
         self.local_model = None
