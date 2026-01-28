@@ -1,93 +1,128 @@
-# IntelliDesk AI - Agglomeration 2.0
+# CSE Society Agglomeration 2.0: IntelliDesk AI
+### "The Perfect Response, Every Time" 🚀
 
-IntelliDesk AI is a next-generation B2B SaaS helpdesk system powered by Agentic AI. It automates ticket classification, provides AI-driven suggested responses using RAG (Retrieval-Augmented Generation), and manages customer relationships with advanced threading and deduplication logic.
+**Domain:** Natural Language Processing (NLP) & Generative AI, Intelligent Process Automation (IPA) / Workflow Automation, Information Retrieval & Knowledge Management
 
-## 🚀 Key Features
+---
 
-- **Agentic AI Ticketing**: Automatically classifies type, priority, and urgency of incoming requests via Groq AI.
-- **AI Suggested Replies**: Drafts professional responses using context from your uploaded Knowledge Base (PDFs/Docs).
-- **Intelligent Email Ingestion**: Real-time polling from Gmail with robust thread linking and UID-based deduplication.
-- **Hybrid Data Architecture**: 
-  - **SQLite**: Lightning-fast operational data (Tickets, Customers, CRM).
-  - **MongoDB**: Scalable archiving for long-term email storage.
-- **Knowledge Base (RAG)**: Upload documents to power the AI's "brain" with specific company knowledge.
-- **CRM Integration**: Manage accounts, organizations, and lead scoring in a unified interface.
+## 📖 Business Context
+IntelliDesk AI addresses the critical inefficiencies in B2B SaaS support:
+- **Problem:** Manual handling of 200–500 daily emails led to 30-45m response times, buried urgent issues, and a low CSAT of 6.5/10.
+- **Solution:** An Agentic AI-powered helpdesk that automates classification, detects urgency, deduplicates threads, and drafts context-aware responses instantly.
+
+---
+
+## 🏗 System Architecture & Core Features
+
+### 1. Email Context Classification (✅ Implemented)
+- **AI Engine:** Powered by Groq (Llama 3.1) for high-speed, low-latency classification.
+- **Logic:**
+  - **Confidence > 80%:** Auto-tags category (Technical, Billing, Access, etc.) and Priority (P1-P4).
+  - **Confidence < 80%:** Flags for manual human review.
+- **Capabilities:** Handles mixed languages (English/Hindi) and filters spam.
+
+### 2. Thread Detection & Deduplication (✅ Implemented)
+- **Smart Grouping:** Uses `In-Reply-To`, `References`, and `Message-ID` headers to group emails into threads.
+- **Ticket Mapping:** Regex parsing detects existing ticket numbers (e.g., `#12345`) to update tickets instead of creating duplicates.
+- **Semantic Matching (Planned for Future):** Fuzzy matching on subjects for non-standard replies.
+
+### 3. Urgency & Severity Classification (✅ Implemented)
+- **Dynamic Signals:** Detects tone (e.g., "ALL CAPS", "urgent", "lawyer") to auto-escalate P1/P2 tickets.
+- **SLA Tracking:** P1 (1hr) to P4 (72hr) deadlines are auto-assigned based on severity.
+
+### 4. Intelligent Auto-Response & RAG (✅ Implemented)
+- **Retrieval Augmented Generation (RAG):**
+  - **Vector DB:** Pinecone (Serverless) stores embeddings of resolved tickets and uploadable knowledge base documents (PDFs).
+  - **AI Model:** Sentenced-Transformers via **Hugging Face Router API** (optimized for speed).
+- **Auto-Reply Logic:**
+  - **Confidence > 80%:** Automatically emails the customer with the AI-generated solution.
+  - **Learning Loop:** Resolved tickets are automatically fed back into the vector database to improve future responses.
+
+### 5. Customer Identification (✅ Implemented)
+- **Domain Mapping:** Auto-extracts domains (`@tatasteel.com`) to link users to Company Accounts.
+- **Lead Detection:** Identifies new domains as potential sales leads.
+
+---
 
 ## 🛠 Technology Stack
 
 ### Backend
-- **Framework**: FastAPI (Python 3.10+)
-- **AI Engine**: Groq (Llama 3.1)
-- **Primary DB**: SQLite (Relational structure)
-- **Archive DB**: MongoDB
-- **Vector Search**: FAISS / Sentence-Transformers (for RAG)
+- **Framework:** FastAPI (Python 3.13)
+- **Database:**
+  - **Operational:** MongoDB Atlas (Aggregations, Threading)
+  - **Vector:** Pinecone (Semantic Search)
+- **AI Services:**
+  - **LLM:** Groq API (Llama 3.1 70B)
+  - **Embeddings:** Hugging Face Router API (`all-MiniLM-L6-v2`)
+- **Authentication:** JWT (OAuth2 Password Bearer) with `bcrypt` encryption.
 
 ### Frontend
-- **Framework**: React.js (Vite)
-- **Styling**: Vanilla CSS with modern UI/UX principles (Glassmorphism, Neon aesthetics)
-- **Icons**: Lucide-React
+- **Framework:** React.js + Vite
+- **Styling:** TailwindCSS + Custom "Neon" Aesthetics
+- **State:** React Context API (Auth, Tickets)
+- **Deployment:** Render (Auto-Deploy from GitHub)
 
-## 📦 Installation & Setup
+---
+
+## � Installation & Setup
 
 ### Prerequisites
 - Python 3.10+
 - Node.js & npm
-- MongoDB instance (Local or Atlas)
-- Groq API Key
+- MongoDB Atlas Account (IP Whitelisted to `0.0.0.0/0`)
+- API Keys: Groq, Pinecone, Hugging Face
 
-### Backend Setup
-1. Navigate to the `backend` folder:
-   ```bash
-   cd backend
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/Scripts/activate  # On Windows: .\venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Create a `.env` file with your credentials:
-   ```env
-   GROQ_API_KEY=your_key_here
-   EMAIL_USER=your_support_email@gmail.com
-   EMAIL_PASSWORD=your_app_password
-   MONGO_URI=mongodb://localhost:27017
-   ```
-5. Run the server:
-   ```bash
-   uvicorn main:app --reload
-   ```
+### 1. Backend Setup
+```bash
+cd backend
+python -m venv venv
+# Windows: .\venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
 
-### Frontend Setup
-1. Navigate to the `frontend` folder:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-## 📂 Project Structure
-```text
-├── backend/
-│   ├── routers/       # API Endpoints
-│   ├── services/      # Business Logic (AI, Email, RAG)
-│   ├── models.py      # Data schemas
-│   └── database.py    # SQLite configuration
-├── frontend/
-│   ├── src/
-│   │   ├── pages/     # React views (Tickets, Inbox, KB)
-│   │   └── components/# Reusable UI items
-└── data/              # Local storage & SQLite DB
+pip install -r requirements.txt
 ```
 
-## 🛡 License
-Internal Use Only (Agglomeration 2.0)
+**Create `.env` file:**
+```env
+MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/?retryWrites=true&w=majority
+GROQ_API_KEY=gsk_...
+PINECONE_API_KEY=pc_...
+HF_TOKEN=hf_...
+EMAIL_USER=support@company.com
+EMAIL_PASSWORD=app_password
+IMAP_SERVER=imap.gmail.com
+```
+
+**Run Server:**
+```bash
+uvicorn main:app --reload
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+```
+
+**Create `.env` file:**
+```env
+VITE_API_URL=http://127.0.0.1:8000/api
+# For production: VITE_API_URL=https://your-app.onrender.com/api
+```
+
+**Run Client:**
+```bash
+npm run dev
+```
+
+---
+
+## 🧪 Success Criteria & Metrics
+- **Classification Accuracy:** Consistently >85% across 8 categories.
+- **Response Speed:** Auto-responses generated in <5 seconds.
+- **Zero Duplicates:** 100% success in threading replies to existing tickets.
+- **Deployment:** Fully CI/CD integrated with Render.
+
+---
+
+**© 2024 IntelliDesk AI | CSE Society Agglomeration 2.0**
